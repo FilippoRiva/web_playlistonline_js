@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" type="text/css" href="css/playlist.css">
+<head>
+    <meta charset="UTF-8">
+    <title>PlaylistOnline</title>
+</head>
+<body>
+
+
+<div class="home" style="position:fixed; top: 10px; right: 10px">
+    <form th:align="left" action = "/PlaylistOnlineJS/home" method = "post">
+        <input class="button" type="submit" value="Home">
+    </form>
+</div>
+<h1 th:text="${playlist.name}">Playlist</h1>
+<div class="song-navigation" th:if="${!emptyPlaylist}">
+    <a class="back" th:if="${prevPage!=0}" th:href="@{/playlist(id=${param.id},page=${prevPage})}">&lt</a>
+    <div class="back" th:if="${prevPage==0}"></div>
+    <div class="current-songs">
+        <a  th:each="song : ${playlist.songs}" th:href="@{/song(id=${song.id},p=${playlist.id},page=${param.page})}">
+        <div class="song-info" >
+            <div class="album-cover">
+                <img src="/" th:src="@{/cover(aID=${song.album.id},arID=${song.album.artist.ID})}">
+            </div>
+            <div class="song-title" th:text="${song.title}">
+                Canzone
+            </div>
+            <div class="artist-name" th:text="${song.album.artist.name}">
+                Artista
+            </div>
+        </div>
+        </a>
+    </div>
+    <a  class="next" th:if="${hasNext}" th:href="@{/playlist(id=${param.id},page=${nextPage})}">&gt</a>
+    <div class="next" th:if="${!hasNext}"></div>
+</div>
+<div th:if="${emptyPlaylist}">
+    No Songs
+</div>
+<h1>Add songs</h1>
+<div class="song-adder-container">
+    <div class="centered-text" th:if="${artists.size()==0}">
+        <br>No more songs to add<br>
+    </div>
+    <form th:if="${artists.size()!=0}" class="playlist-form" th:action = "@{/playlist-add(p_ID=${param.id},page=${param.page})}" method = "post" autocomplete="off">
+        <table class="custom-table">
+            <div th:if="${artists.size()!=0}" >
+                <tr th:each="artist : ${artists}">
+                    <td class="artist-name" th:text="${artist.name}">artist name</td>
+                    <td>
+                        <table class="custom-table" th:each="album : ${artist.albums}">
+                            <tr>
+                                <td class="album-title" th:text="${album.name}">album</td>
+                                <td>
+                                    <table class="custom-table" >
+                                        <tr th:each="song : ${album.songs}">
+                                            <td class="checkbox-container">
+                                                <label>
+                                                    <input type="checkbox" th:name="s_ID" th:value="${song.id}"><span class="song-title" th:text="${song.title}"></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </div>
+        </table>
+        <input class="button" type="submit" value="Add">
+    </form>
+
+</div>
+
+
+</body>

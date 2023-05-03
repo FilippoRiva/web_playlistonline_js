@@ -1,0 +1,99 @@
+* {
+    --color-primary: #514bff;
+    --color-complementary: #681e7c;
+    --color-triadic1: #8361ab;
+    --color-triadic2: #1e327c;
+    box-sizing: border-box;
+    font-family: "Courier New", monospace;
+    color:white;
+    background: black;
+    font-size: 22px;
+    overflow: scroll;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    margin: 0;
+    overflow: auto;
+    background: rgb(2,0,36);
+    background: linear-gradient(0deg, var(--color-triadic2) 0%, var(--color-complementary) 100%);
+}
+
+/*default html components*/
+h1 {
+    background: none;
+    text-align: center;
+    cursor: default;
+    font-size: 38px;
+}
+
+select {
+    position: relative;
+    padding: 2px;
+    height: 28px;
+    border: 1px solid white;
+    cursor: pointer;
+    background: black;
+    color : white;
+    max-width: 100%;
+}
+
+/*links*/
+a:link{
+    color:white;
+    text-decoration: none;
+}
+
+a:visited{
+    color:white;
+    text-decoration: none;
+}
+
+/*generic button*/
+.button {
+    position: relative;
+    width: fit-content;
+    background-color: var(--color-complementary);
+    color: white;
+    border: 0 ;
+    padding: 3px 10px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+}
+
+.button:hover {
+    transform: scale(0.9);
+}
+
+a:hover{
+    animation: 0.5 forwards 0.1s toGreenColor;
+}
+
+/*hide class*/
+.hide {
+    display: none;
+}
+
+input:focus{
+    outline: none;
+}
+
+input {
+    border: 1px solid white;
+    max-width: 100%;
+}
+
+input[type=text], input[type=password]{
+    text-align: center;
+}
+
+@keyframes toGreenColor {
+    100% {
+        color: var(--color-complementary);
+    }
+}

@@ -1,0 +1,24 @@
+@import url(style.css);
+@import url(artists-table.css);
+
+.playlist-table , .song-form, .playlist-form{
+    width: 70%;
+    margin: auto;
+    border: 1px solid white;
+    border-radius: 28px;
+    padding: 20px;
+}
+
+input[type=text], input[type=select],select, input[type=date] {
+    width: 80%;
+}
+
+
+input[type=file], input[type=checkbox]{
+    display: none;
+}
+
+table {
+    position: relative;
+    width: 100%;
+}

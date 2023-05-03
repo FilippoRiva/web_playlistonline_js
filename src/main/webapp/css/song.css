@@ -1,0 +1,64 @@
+@import url(style.css);
+
+.song-container {
+    position: relative;
+    width: 70%;
+    border: 1px white solid;
+    border-radius: 30px;
+    margin: 15% auto;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+}
+
+.song-block {
+    display: flex;
+    flex-grow: 0;
+    position: relative;
+    vertical-align: top;
+    flex-basis: 100%;
+    flex-direction: column;
+    margin: 20px 20px 20px 0;
+}
+
+.album-cover {
+    margin:20px;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.album-cover, .album-cover img {
+    flex-shrink: 0;
+    flex-grow: 0;
+    position: relative;
+    display: inline-block;
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    overflow: hidden;
+    border: 20px;
+}
+.song-info {
+    height: 80%;
+    width: 100%;
+    margin: 0;
+    padding-top: 8%;
+    text-align: center;
+}
+
+.audio-player {
+    width: 100%;
+}
+
+.audio-player audio {
+    width: 100%;
+}
+
+.song-title {
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.artist-album, .releaseDate-genre {
+    font-size: 20px;
+}

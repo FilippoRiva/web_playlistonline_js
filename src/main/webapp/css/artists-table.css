@@ -1,0 +1,59 @@
+table {
+    position: relative;
+    width: 100%;
+}
+
+td {
+    padding: 0;
+    position: relative;
+    width: 50%;
+    text-align: center;
+}
+
+label, span {
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+}
+
+.checkbox-container label span:hover{
+    background-color: var(--color-triadic2);
+}
+input:checked, input:checked + span{
+    background-color: var(--color-complementary);
+}
+
+.custom-table {
+    padding: 0;
+    background: var(--color-triadic2);
+    border-collapse: collapse;
+}
+
+.row {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+tr:nth-child(even) .artist-name{
+    background-color: var(--color-complementary);
+}
+tr:nth-child(odd) .artist-name{
+    background-color: var(--color-triadic2);
+}
+td table:nth-child(even) tr .album-title{
+    background-color: var(--color-triadic1);
+}
+td table:nth-child(odd) tr .album-title{
+    background-color: var(--color-primary);
+}
+
+input[type=checkbox]{
+    display: none;
+}
+
+.song-adder-container .button, .playlist-form .button {
+    display: grid;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+}

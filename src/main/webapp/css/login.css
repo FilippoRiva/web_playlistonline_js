@@ -1,0 +1,11 @@
+@import url(style.css);
+
+.centered-form {
+    max-width: 50%;
+    text-align: center;
+    margin: 14% auto auto;
+    border: 1px solid white;
+    border-radius: 38px;
+    padding: 20px;
+}
+
