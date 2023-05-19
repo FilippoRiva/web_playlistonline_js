@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" type="text/css" href="css/playlist.css">
+<head>
+    <meta charset="UTF-8">
+    <title>PlaylistOnline</title>
+</head>
+<body>
+
+
+<div class="home" style="position:fixed; top: 10px; right: 10px">
+    <form action = "#" method = "post">
+        <input class="button" type="submit" value="Home">
+    </form>
+</div>
+<h1>Playlist</h1>
+<div class="song-navigation">
+    <a class="back" href="#" hidden>&lt</a>
+    <div class="back" hidden></div>
+    <div class="current-songs">
+        <a href="#">
+        <div class="song-info" >
+            <div class="album-cover">
+                <img src="#">
+            </div>
+            <div class="song-title">
+                Canzone
+            </div>
+            <div class="artist-name">
+                Artista
+            </div>
+        </div>
+        </a>
+    </div>
+    <a  class="next" href="#" hidden>&gt</a>
+    <div class="next" hidden></div>
+</div>
+<div hidden>
+    No Songs
+</div>
+<h1>Add songs</h1>
+<div class="song-adder-container">
+    <div class="centered-text" hidden>
+        <br>No more songs to add<br>
+    </div>
+    <form class="playlist-form" action = "#" method = "post" autocomplete="off">
+        <table class="custom-table">
+            <div>
+                <tr>
+                    <td class="artist-name">artist name</td>
+                    <td>
+                        <table class="custom-table">
+                            <tr>
+                                <td class="album-title">album</td>
+                                <td>
+                                    <table class="custom-table" >
+                                        <tr>
+                                            <td class="checkbox-container">
+                                                <label>
+                                                    <input type="checkbox" value="?"><span class="song-title">title</span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </div>
+        </table>
+        <input class="button" type="submit" value="Add">
+    </form>
+</div>
+
+
+</body>

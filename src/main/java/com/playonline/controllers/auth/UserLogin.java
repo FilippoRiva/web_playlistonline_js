@@ -3,10 +3,6 @@ package com.playonline.controllers.auth;
 import com.playonline.beans.User;
 import com.playonline.dao.UserDAO;
 import com.playonline.utils.MySQLConnections;
-import com.playonline.utils.TemplateEngines;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.web.servlet.JavaxServletWebApplication;
 
 import javax.servlet.ServletContext;
 import javax.servlet.annotation.WebServlet;
@@ -22,15 +18,10 @@ import java.sql.*;
 public class UserLogin extends HttpServlet{
 
     private UserDAO userDAO;
-    private TemplateEngine templateEngine;
-    private JavaxServletWebApplication application;
 
     @Override
     public void init(){
         ServletContext context = getServletContext();
-
-        this.templateEngine = TemplateEngines.getTemplateEngine(getServletContext());
-        this.application = JavaxServletWebApplication.buildApplication(getServletContext());
 
         Connection connection = MySQLConnections.getConnection(context);
         try {
@@ -45,7 +36,7 @@ public class UserLogin extends HttpServlet{
         // auth cookie check
         Cookie[] cookies = req.getCookies();
         if(cookies==null) {
-            loginProcess(req,resp,true);
+            //todo redirect to homepage
             return;
         }
         for (Cookie c : cookies) {
@@ -63,7 +54,7 @@ public class UserLogin extends HttpServlet{
                 return;
             }
         }
-        loginProcess(req,resp,true);
+        //todo redirect to homepage
     }
 
     @Override
@@ -72,7 +63,7 @@ public class UserLogin extends HttpServlet{
         String username = req.getParameter("username");
         String password = req.getParameter("password");
         if(username==null || password==null || password.length()<5){
-            loginProcess(req,resp,false);
+            //todo failed auth
             return;
         }
         // validity check
@@ -83,7 +74,7 @@ public class UserLogin extends HttpServlet{
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         if(user==null){
-            loginProcess(req,resp,false);
+            //todo failed auth
             return;
         }
         // new auth cookie
@@ -92,11 +83,5 @@ public class UserLogin extends HttpServlet{
         cookie.setMaxAge(60*60*24*365);
         resp.addCookie(cookie);
         resp.sendRedirect("/PlaylistOnlineJS/home");
-    }
-
-    public void loginProcess(HttpServletRequest req, HttpServletResponse resp, boolean valid) throws IOException {
-        WebContext ctx = new WebContext(application.buildExchange(req,resp));
-        ctx.setVariable("invalid",!valid);
-        templateEngine.process("login",ctx,resp.getWriter());
     }
 }

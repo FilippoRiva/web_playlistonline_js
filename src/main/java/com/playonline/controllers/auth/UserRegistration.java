@@ -2,11 +2,6 @@ package com.playonline.controllers.auth;
 
 import com.playonline.dao.UserDAO;
 import com.playonline.utils.MySQLConnections;
-import com.playonline.utils.TemplateEngines;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.IWebContext;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.web.servlet.JavaxServletWebApplication;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
@@ -19,14 +14,10 @@ import java.sql.*;
 @WebServlet("/registration")
 public class UserRegistration extends HttpServlet {
 
-    TemplateEngine templateEngine;
-    JavaxServletWebApplication application;
     private UserDAO userDAO;
 
     @Override
     public void init() {
-        templateEngine = TemplateEngines.getTemplateEngine(getServletContext());
-        application = JavaxServletWebApplication.buildApplication(getServletContext());
         Connection connection = MySQLConnections.getConnection(getServletContext());
         try {
             userDAO = new UserDAO(connection);
@@ -36,47 +27,28 @@ public class UserRegistration extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        IWebContext context = new WebContext(application.buildExchange(req,resp));
-        templateEngine.process("registration",context,resp.getWriter());
-    }
-
-    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
         String passwordCopy = req.getParameter("passwordCopy");
-        WebContext context = new WebContext(application.buildExchange(req,resp));
         // input parsing
         if(username==null || username.length()<1 || username.length()>30) {
-            context.setVariable("usernameInvalid",true);
-            req.setAttribute("password",password);
-            req.setAttribute("passwordCopy",passwordCopy);
-            templateEngine.process("registration",context,resp.getWriter());
+            //todo invalid username
             return;
         }
         if(password==null || password.length()<5 || password.length()>100){
-            req.setAttribute("username",username);
-            context.setVariable("passwordInvalid",true);
-            templateEngine.process("registration",context,resp.getWriter());
+            //todo invalid password
             return;
         }
         if(passwordCopy==null || password.compareTo(passwordCopy)!=0){
-            req.setAttribute("username",username);
-            req.setAttribute("password",password);
-            context.setVariable("passwordCopyInvalid",true);
-            templateEngine.process("registration",context,resp.getWriter());
+            //todo password not match
             return;
         }
         // registration attempt
         String cookieVal;
         try {
             if(!userDAO.isUsernameAvailable(username)){
-                req.setAttribute("username",username);
-                req.setAttribute("password",password);
-                req.setAttribute("passwordCopy",passwordCopy);
-                context.setVariable("usernameUnavailable",true);
-                templateEngine.process("registration",context,resp.getWriter());
+                //todo username not available
                 return;
             } else {
                 cookieVal = userDAO.getNewCookie();

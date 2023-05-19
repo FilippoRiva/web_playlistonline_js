@@ -7,11 +7,6 @@ import com.playonline.dao.PlaylistDAO;
 import com.playonline.dao.SongDAO;
 import com.playonline.utils.GenreEnum;
 import com.playonline.utils.MySQLConnections;
-import com.playonline.utils.TemplateEngines;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.web.IWebExchange;
-import org.thymeleaf.web.servlet.JavaxServletWebApplication;
 
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -28,16 +23,12 @@ import java.util.Objects;
 @WebServlet("/home")
 @MultipartConfig
 public class HomePage extends HttpServlet {
-    TemplateEngine templateEngine;
-    JavaxServletWebApplication application;
     PlaylistDAO playlistDAO;
     AlbumDAO albumDAO;
     SongDAO songDAO;
 
     @Override
     public void init() {
-        this.templateEngine = TemplateEngines.getTemplateEngine(getServletContext());
-        this.application = JavaxServletWebApplication.buildApplication(getServletContext());
         try{
             Connection connection = MySQLConnections.getConnection(getServletContext());
             String filesDirectory = getServletContext().getInitParameter("filesDirectory");
@@ -86,8 +77,8 @@ public class HomePage extends HttpServlet {
         }
 
         // page templating
-        IWebExchange webExchange = application.buildExchange(req,resp);
-        WebContext context = new WebContext(webExchange);
+        //todo
+        /*
         context.setVariable("playlists",playlists);
         context.setVariable("adding", false);
         context.setVariable("genres",GenreEnum.values());
@@ -115,6 +106,7 @@ public class HomePage extends HttpServlet {
         }
         context.setVariable("selectedId",selectedId);
         templateEngine.process("home",context,resp.getWriter());
+         */
     }
 
     @Override

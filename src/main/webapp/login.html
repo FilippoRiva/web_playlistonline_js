@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <link rel="stylesheet" type="text/css" href="css/login.css">
 <head>
     <meta charset="UTF-8">
@@ -8,16 +8,16 @@
 <body>
 <div class="centered-form">
     <h1>Login</h1>
-    <form action = "/PlaylistOnlineJS/login" method = "post" autocomplete="off">
+    <form action = "#" method = "post" autocomplete="off">
         <label for="username" >Username:</label><br>
-        <input type="text" id="username" name="username" th:value="${param.username}"><br>
+        <input type="text" id="username" name="username"><br>
         <label for="password">Password:</label><br>
         <input type="password" id="password" name="password"><br>
         <br>
         <input class="button" type="submit" value="Sign in"><br>
     </form>
     <br>
-    <span th:if="${invalid}">Invalid Credentials</span>
+    <span hidden>Invalid Credentials</span>
     <a href="/PlaylistOnlineJS/registration" style="position: fixed; top: 10px; right: 10px;">
         <div class="button">Register</div>
     </a>

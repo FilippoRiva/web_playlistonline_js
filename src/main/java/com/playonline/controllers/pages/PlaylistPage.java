@@ -5,11 +5,6 @@ import com.playonline.beans.Playlist;
 import com.playonline.beans.User;
 import com.playonline.dao.PlaylistDAO;
 import com.playonline.utils.MySQLConnections;
-import com.playonline.utils.TemplateEngines;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.web.IWebExchange;
-import org.thymeleaf.web.servlet.JavaxServletWebApplication;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -22,14 +17,10 @@ import java.util.List;
 
 @WebServlet("/playlist")
 public class PlaylistPage extends HttpServlet {
-    TemplateEngine templateEngine;
-    JavaxServletWebApplication application;
     Connection connection;
     PlaylistDAO playlistDAO;
     @Override
     public void init(){
-        this.templateEngine = TemplateEngines.getTemplateEngine(getServletContext());
-        this.application = JavaxServletWebApplication.buildApplication(getServletContext());
         try {
             this.connection = MySQLConnections.getConnection(getServletContext());
             this.playlistDAO = new PlaylistDAO(connection);
@@ -87,6 +78,8 @@ public class PlaylistPage extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         }
+        //todo return the playlist as a json
+        /*
         IWebExchange webExchange = application.buildExchange(req,resp);
         WebContext context = new WebContext(webExchange);
         context.setVariable("playlist", playlist);
@@ -96,5 +89,6 @@ public class PlaylistPage extends HttpServlet {
         context.setVariable("nextPage", nextPage);
         context.setVariable("emptyPlaylist", empty);
         templateEngine.process("playlist", context, resp.getWriter());
+        */
     }
 }

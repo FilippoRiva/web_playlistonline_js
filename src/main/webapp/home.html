@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <link rel="stylesheet" type="text/css" href="css/home.css">
 <head>
     <meta charset="UTF-8">
@@ -7,63 +7,57 @@
 </head>
 <body>
     <div class="logout" style="position:fixed; top: 10px; right: 10px">
-        <form th:align="left" action = "/PlaylistOnlineJS/logout" method = "post">
+        <form action = "/PlaylistOnlineJS/logout" method = "post">
             <input class="button" type="submit" value="Logout">
         </form>
     </div>
 
-    <h1 th:text="${session.user.username}+'\'s playlists'">Playlists</h1>
+    <h1 class="username-playlists">Playlists</h1>
 
-    <table th:if="${playlists.size()!=0}" class="playlist-table">
-        <tr class="row" th:each="playlist :${playlists}">
-            <td><a class="left" href="/playlist?id=1" th:text="${playlist.name}"
-               th:href="@{/playlist(id=${playlist.id},page=1)}">Playlist 1</a></td>
-            <td><span class="right" th:text="${playlist.date}">0/00/0001</span></td>
+    <table class="playlist-table">
+        <tr class="row">
+            <td><a class="left" href="#">Playlist 1</a></td>
+            <td><span class="right">0/00/0001</span></td>
         </tr>
     </table>
 
 
     <h1>Add a Song</h1>
 
-    <form class="song-form" action = "/PlaylistOnlineJS/song-add" method = "post" autocomplete="off"  enctype="multipart/form-data">
+    <form class="song-form" action = "#" method = "post" autocomplete="off"  enctype="multipart/form-data">
         <table>
             <tr class="row">
                 <td><label class="left" for="s_title" >Title</label></td>
-                <td><input class="right" type="text" id="s_title" name="s_title" th:value="${param.s_title}"></td>
+                <td><input class="right" type="text" id="s_title" name="s_title"></td>
             </tr>
             <tr class="row">
                 <td><label class="left" for="s_genre" >Genre</label></td>
                 <td>
                     <select class="right" id="s_genre" name="s_genre">
-                        <option th:value="none">choose an option</option>
-                        <option th:each="genre : ${genres}"
-                                th:value="${genre.name}"
-                                th:text="${genre.name}"
-                                th:selected="${selectedId == genre.id}">
-                        </option>
+                        <option>choose an option</option>
                     </select>
                 </td>
             </tr>
             <tr class="album-switch-container">
                 <td class="album-switch">
-                    <button class="button" type="submit" formaction="/PlaylistOnlineJS/home?a=true">New Album</button>
+                    <button class="button" type="submit" formaction="#">New Album</button>
                 </td>
                 <td class="album-switch">
-                    <button class="button" type="submit" formaction="/PlaylistOnlineJS/home?a=false">Existing Album</button>
+                    <button class="button" type="submit" formaction="#">Existing Album</button>
                 </td>
             </tr>
-            <div th:if="${adding&&newAlbum}">
+            <div hidden>
                 <tr class="row">
                     <td><label class="left" for="ar_name">Artist</label></td>
-                    <td><input class="right" type="text" id="ar_name" name="ar_name" th:value="${param.ar_name}"></td>
+                    <td><input class="right" type="text" id="ar_name" name="ar_name"></td>
                 </tr>
                 <tr class="row">
-                    <td><label class="left" for="a_name">Album Title</label></td>
-                    <td><input class="right" type="text" id="a_name" name="a_name" th:value="${param.a_name}"></td>
+                    <td><label class="left" for="a_name">
+                    <td><input class="right" type="text" id="a_name" name="a_name"></td>
                 </tr>
                 <tr class="row">
                     <td><label class="left" for="a_date">Release Date</label></td>
-                    <td><input class="right" type="date" id="a_date" name="a_date" th:value="${param.a_date}"></td>
+                    <td><input class="right" type="date" id="a_date" name="a_date"></td>
                 </tr>
                 <tr class="row">
                     <td><label class="left" for="a_cover">Cover</label></td>
@@ -73,29 +67,25 @@
                                accept="image/*"></label></td>
                 </tr>
             </div>
-            <div th:if="${adding&&!newAlbum&&albums.size!=0}">
+            <div hidden>
                 <tr class="row">
                     <td><label class="left" for="a_ID">Album</label></td>
                     <td><select class="right" id="a_ID" name="a_ID">
-                        <option th:each="album : ${albums}"
-                                th:value="${album.id}"
-                                th:label="${album.artist.name}+' - '+${album.name}"
-                                th:selected="${album.id==param.s} or (${param.s==null} and ${param.a_ID==album.id})">
-                        </option>
+                        <option>options</option>
                     </select></td>
                 </tr>
             </div>
-            <div th:if="${adding&&!newAlbum&&albums.size==0}">
+            <div hidden>
                 <tr class="row">
                     <td><div class="centered-text"> No albums available </div></td>
-                    <td><input class="hide" th:name="a_ID" th:value="0"></td>
+                    <td><input hidden name="a_ID"></td>
                 </tr>
             </div>
-        <div th:if="${adding}">
+        <div hidden>
             <tr class="row">
                 <td><label class="left" for="s_file">Audio File</label></td>
                 <td><label class="button">Upload File<input class="right" type="file" id="s_file" name="s_file"
-                       th:value="${param.s_file}" accept="audio/*"></label></td>
+                       accept="audio/*"></label></td>
             </tr>
             <tr class="row">
                 <td><button class="button" type="submit">Add</button></td>
@@ -106,28 +96,28 @@
 
     <h1>Create a Playlist</h1>
 
-    <form class="playlist-form" action = "/PlaylistOnlineJS/playlist-create" method = "post" autocomplete="off">
+    <form class="playlist-form" action = "#" method = "post" autocomplete="off">
         <div class="row">
         <label class="left" for="p_title" >Title:</label>
         <input class="right" type="text" id="p_title" name="p_title"><br>
         </div>
-        <div th:if="${artists.size()==0}">
+        <div hidden>
             <br>You have no songs uploaded<br>
         </div>
         <table class="custom-table">
-        <div th:if="${artists.size()!=0}" >
-            <tr th:each="artist : ${artists}">
-                <td class="artist-name" th:text="${artist.name}">artist name</td>
+        <div hidden>
+            <tr>
+                <td class="artist-name">artist name</td>
                 <td>
-                    <table class="custom-table" th:each="album : ${artist.albums}">
+                    <table class="custom-table">
                         <tr>
-                            <td class="album-title" th:text="${album.name}">album</td>
+                            <td class="album-title">album</td>
                             <td>
                                 <table class="custom-table" >
-                                    <tr th:each="song : ${album.songs}">
+                                    <tr>
                                         <td class="checkbox-container">
                                             <label>
-                                                <input type="checkbox" th:name="s_ID" th:value="${song.id}"><span class="song-title" th:text="${song.title}"></span>
+                                                <input type="checkbox"><span class="song-title"></span>
                                             </label>
                                         </td>
                                     </tr>
