@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <link rel="stylesheet" type="text/css" href="css/login.css">
+<script src="js/utils.js" async></script>
+<script src="js/login.js" async></script>
 <head>
     <meta charset="UTF-8">
     <title>PlaylistOnline</title>
@@ -13,12 +15,14 @@
         <input type="text" id="username" name="username"><br>
         <label for="password">Password:</label><br>
         <input type="password" id="password" name="password"><br>
+        <label for="passwordCopyInput" id="passwordCopyLabel" hidden>Confirm Password:</label><br>
+        <input type="password" id="passwordCopyInput" name="passwordCopy" hidden><br>
         <br>
         <input class="button" type="submit" value="Sign in"><br>
     </form>
     <br>
-    <span hidden>Invalid Credentials</span>
-    <a href="/PlaylistOnlineJS/registration" style="position: fixed; top: 10px; right: 10px;">
+    <span id="errorMessage"> </span>
+    <a id="topButton" href="#" style="position: fixed; top: 10px; right: 10px;">
         <div class="button">Register</div>
     </a>
 </div>

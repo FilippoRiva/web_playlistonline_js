@@ -1,7 +1,9 @@
 @import url(style.css);
 @import url(artists-table.css);
+@import url(song.css);
+@import url(playlist.css);
 
-.playlist-table , .song-form, .playlist-form{
+.playlist-table , .song-form, .remaining-songs-form{
     width: 70%;
     margin: auto;
     border: 1px solid white;
