@@ -20,7 +20,8 @@ public class AlbumDAO {
     public AlbumDAO(Connection connection, String folder) throws SQLException{
         this.folder = folder;
         String addAlbumQuery = "INSERT INTO album(a_name,a_artist_ID,a_date) VALUES (?,?,?)";
-        String getAlbumByIDQuery = "SELECT a_date, a_name, ar_name, ar_ID FROM album JOIN artist ON a_artist_ID=ar_ID WHERE a_ID=? ";
+        String getAlbumByIDQuery = "SELECT a_date, a_name, ar_name, ar_ID FROM album JOIN artist ON a_artist_ID=ar_ID " +
+                "JOIN song ON s_album_ID=a_ID JOIN user ON u_name=? WHERE a_ID=? ";
         String getUserAlbums = "SELECT a_ID, a_name, a_date, ar_ID, ar_name " +
                 "FROM song JOIN album ON s_album_ID=a_ID JOIN artist ON a_artist_ID=ar_ID " +
                 "WHERE s_owner = ? " +
@@ -49,8 +50,9 @@ public class AlbumDAO {
         return albums;
     }
 
-    public Album getAlbum(int albumID) throws SQLException, InvalidParameterException{
-        getAlbumByIDStatement.setInt(1,albumID);
+    public Album getAlbum(String username, int albumID) throws SQLException, InvalidParameterException{
+        getAlbumByIDStatement.setString(1,username);
+        getAlbumByIDStatement.setInt(2,albumID);
         ResultSet result = getAlbumByIDStatement.executeQuery();
         if(!result.next()) {
             throw new InvalidParameterException();
