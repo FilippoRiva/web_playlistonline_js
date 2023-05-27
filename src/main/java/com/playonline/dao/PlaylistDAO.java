@@ -88,13 +88,13 @@ public class PlaylistDAO {
         addSongToPlaylistStatement.executeUpdate();
     }
 
-    public Playlist getPlaylistPage(int playlistID,String owner, int page) throws SQLException{
+    public Playlist getPlaylist(int playlistID,String owner) throws SQLException{
         Playlist playlist = new Playlist();
         ResultSet queryResult;
         getPlaylistInfoStatement.setInt(1,playlistID);
         getPlaylistInfoStatement.setString(2,owner);
         queryResult = getPlaylistInfoStatement.executeQuery();
-        if(!queryResult.next()){
+        if(!queryResult.next()){ //empty playlist
             checkPlaylistExistenceStatement.setInt(1,playlistID);
             checkPlaylistExistenceStatement.setString(2,owner);
             queryResult = checkPlaylistExistenceStatement.executeQuery();
@@ -103,12 +103,6 @@ public class PlaylistDAO {
             playlist.setId(queryResult.getInt("p_ID"));
             playlist.setDate(new Date(queryResult.getDate("p_date").getTime()));
             return playlist;
-        }
-        int beginRow = (page-1)*5;
-        int endRow = (page)*5;
-        while(beginRow!=0){
-            if(!queryResult.next()) return null;
-            beginRow--;
         }
         playlist.setName(queryResult.getString("p_title"));
         playlist.setId(playlistID);
@@ -132,7 +126,7 @@ public class PlaylistDAO {
             album.setArtist(artist);
             song.setAlbum(album);
             songs.add(song);
-        }while(queryResult.next() && queryResult.getRow()!=endRow+2);
+        }while(queryResult.next());
         playlist.setSongs(songs);
         return playlist;
     }
@@ -176,14 +170,12 @@ public class PlaylistDAO {
                 currentSongs = new ArrayList<>();
                 currentAlbum= new Album();
                 currentAlbum.setId(result.getInt("a_ID"));
-                currentAlbum.setArtist(currentArtist);
                 currentAlbum.setDate(new Date(result.getDate("a_date").getTime()));
                 currentAlbum.setName(result.getString("a_name"));
                 currentAlbums.add(currentAlbum);
             }
             //new song
             currentSong = new Song();
-            currentSong.setAlbum(currentAlbum);
             currentSong.setTitle(result.getString("s_title"));
             currentSong.setId(result.getInt("s_ID"));
             Genre genre = new Genre();
