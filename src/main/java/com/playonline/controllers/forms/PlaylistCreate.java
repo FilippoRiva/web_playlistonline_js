@@ -7,6 +7,7 @@ import com.playonline.utils.MySQLConnections;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 @WebServlet("/playlist-create")
+@MultipartConfig
 public class PlaylistCreate extends HttpServlet {
     PlaylistDAO playlistDAO;
     SongDAO songDAO;
@@ -72,7 +74,6 @@ public class PlaylistCreate extends HttpServlet {
                 throw new RuntimeException(ex);
             }
         }
-        resp.sendRedirect("home");
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
-
 }

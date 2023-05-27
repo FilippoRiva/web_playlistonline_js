@@ -1,7 +1,10 @@
-package com.playonline.controllers.forms;
+package com.playonline.controllers.services;
 
+import com.google.gson.Gson;
+import com.mysql.cj.protocol.a.BooleanValueEncoder;
 import com.playonline.beans.Album;
 import com.playonline.beans.Artist;
+import com.playonline.beans.Song;
 import com.playonline.beans.User;
 import com.playonline.dao.AlbumDAO;
 import com.playonline.dao.ArtistDAO;
@@ -9,7 +12,6 @@ import com.playonline.dao.SongDAO;
 import com.playonline.utils.GenreEnum;
 import com.playonline.utils.MySQLConnections;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -25,19 +27,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@WebServlet("/song-add")
+@WebServlet("/song")
 @MultipartConfig
-public class SongCreate extends HttpServlet {
-
+public class SongServlet extends HttpServlet {
     Connection connection;
     SongDAO songDAO;
-    AlbumDAO albumDAO;
     ArtistDAO artistDAO;
-    RequestDispatcher homeATrue;
-    RequestDispatcher homeAFalse;
+    AlbumDAO albumDAO;
 
     @Override
-    public void init(){
+    public void init() {
+        try {
+            Connection connection = MySQLConnections.getConnection(getServletContext());
+            this.songDAO = new SongDAO(connection,getInitParameter("filesDirectory"));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         this.connection = MySQLConnections.getConnection(getServletContext());
         String filesDirectory = getServletContext().getInitParameter("filesDirectory");
         try {
@@ -48,15 +53,45 @@ public class SongCreate extends HttpServlet {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        homeATrue = getServletContext().getRequestDispatcher("/home?a=true");
-        homeAFalse = getServletContext().getRequestDispatcher("/home?a=false");
     }
 
+    //returns the requested song info
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doGet(req, resp);
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // auth check
+        User user = (User) req.getSession().getAttribute("user");
+        if(user==null){
+            resp.sendRedirect("login");
+            return;
+        }
+        // input parsing
+        String id_str = req.getParameter("id");
+        int id;
+        try{
+            id = Integer.parseInt(id_str);
+        } catch (NumberFormatException e){
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        // page templating
+        Song song;
+        try {
+            song = songDAO.getSongByID(id, user.getUsername());
+        } catch (SQLException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
+        }
+        if(song==null){
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        Gson gson = new Gson();
+        resp.setContentType("application/json");
+        resp.getWriter().write(gson.toJson(song,song.getClass()));
     }
 
+    //adds a song to the user's songs
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //auth check
@@ -74,31 +109,42 @@ public class SongCreate extends HttpServlet {
         String a_ID_str = req.getParameter("a_ID");
         String ar_name = req.getParameter("ar_name");
         String a_date_str = req.getParameter("a_date");
-        if(a_ID_str==null && (song.getSize()==0 || s_title == null || s_title.equals("") ||
+        String existing_str = req.getParameter("existing");
+        boolean existing;
+        existing = Boolean.parseBoolean(existing_str);
+        if(!existing && (song.getSize()==0 || s_title == null || s_title.equals("") ||
                 a_name==null || a_name.equals("") || ar_name==null || ar_name.equals("") ||
                 a_date_str.equals("") || cover.getSize()==0 || s_genre==null || s_genre.equals("none"))){
-            homeATrue.forward(req,resp);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("fill every field");
             return;
         }
-        if( a_ID_str!=null && (song.getSize()==0 || s_title == null || s_title.equals("") || s_genre==null || s_genre.equals("none"))){
-            homeAFalse.forward(req,resp);
+        if(existing && (song.getSize()==0 || s_title == null || s_title.equals("") || s_genre==null || s_genre.equals("none"))){
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("fill every field");
             return;
         }
         int a_ID = -1;
         Date a_date = null;
-        if(a_ID_str==null){
+        if(!existing){
             try {
                 a_date = new SimpleDateFormat("yyyy-dd-MM").parse(a_date_str);
             } catch (ParseException e) {
-                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("date is not a date");
                 return;
             }
-        }
-        if(a_ID_str!=null){
+        } else {
+            if(a_ID_str==null){
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("no album set");
+                return;
+            }
             try {
                 a_ID = Integer.parseInt(a_ID_str);
             }catch (NumberFormatException e){
-                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("albumID is not an ID");
                 return;
             }
         }
@@ -106,11 +152,13 @@ public class SongCreate extends HttpServlet {
         try {
             genre = GenreEnum.valueOf(s_genre.toUpperCase());
         } catch (IllegalArgumentException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("invalid genre");
             return;
         }
-        if(!song.getContentType().startsWith("audio/") || (cover!=null && !cover.getContentType().startsWith("image/"))){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        if(!song.getContentType().startsWith("audio/") || (cover!=null && cover.getSize()!=0 && !cover.getContentType().startsWith("image/"))){
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("invalid file format");
             return;
         }
 
@@ -118,11 +166,11 @@ public class SongCreate extends HttpServlet {
         Album album = null;
         Artist artist;
         try {
-            if(a_ID_str==null) {
+            if(!existing) {
                 artist = artistDAO.addArtist(user.getUsername(),ar_name);
                 album = albumDAO.addAlbum(a_name, artist, a_date, cover, user.getUsername());
             } else {
-                album = albumDAO.getAlbum(a_ID);
+                album = albumDAO.getAlbum(user.getUsername(),a_ID);
             }
             songDAO.addSong(user.getUsername(), s_title,genre, song, album);
             connection.commit();
@@ -132,7 +180,8 @@ public class SongCreate extends HttpServlet {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("album doesn't exists");
             return;
         } catch (SQLException e){
             try {
@@ -142,10 +191,12 @@ public class SongCreate extends HttpServlet {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("server failed");
             return;
         }
         // success
-        resp.sendRedirect("home?a=false&s="+album.getId());
+        resp.setContentType("text/plain");
+        resp.getWriter().write(Integer.toString(album.getId()));
     }
 }
