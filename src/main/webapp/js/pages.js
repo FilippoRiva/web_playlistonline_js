@@ -52,9 +52,11 @@ function HomePage(playlistList,songForm,remainingSongs){
 
 function PlaylistPage(songNavigator,remainingSongs) {
 
+    this.playlistName = undefined;
     this.songNavigator = songNavigator;
     this.remainingSongs = remainingSongs;
     this.show = function(playlistName) {
+        if(playlistName) this.playlistName = playlistName;
         //removing listeners to top right button
         let buttonCopy = topRightButton.cloneNode(true);
         topRightButton.parentElement.replaceChild(buttonCopy, topRightButton);
@@ -73,7 +75,7 @@ function PlaylistPage(songNavigator,remainingSongs) {
 
         if(playlistName!==undefined) firstH1.textContent = playlistName;
         this.songNavigator.show();
-        firstH1.textContent = playlistName;
+        firstH1.textContent = this.playlistName;
         secondH1.textContent = "Add Songs";
         remainingSongs.show();
     }
@@ -94,12 +96,48 @@ function PlaylistPage(songNavigator,remainingSongs) {
 function SongPage(songContainer) {
     this.songContainer = songContainer;
     this.show = function(){
-        this.songContainer.style.visibility = "visible";
+        topRightButton.hidden = false;
     }
     this.hide = function(){
-        this.songContainer.style.visibility = "hidden";
+        this.songContainer.hide();
+        topRightButton.hidden = true;
+
+        songContainer.hide()
     }
     this.refresh = function(songId) {
+        topRightButton = removeListeners(topRightButton);
+        topRightButton.firstElementChild.textContent = "back to playlist";
+        topRightButton.addEventListener("click",(evt)=>{
+            evt.preventDefault();
+            songPage.hide();
+            playlistPage.show();
+        })
         this.songContainer.refresh(songId);
+        this.show();
+    }
+}
+
+function OrderPage(dragAndDropTable) {
+    this.dragAndDropTable = dragAndDropTable;
+    this.show = function(){
+        dragAndDropTable.show();
+        topRightButton.hidden = false;
+    }
+    this.hide = function(){
+        dragAndDropTable.hide();
+        firstH1.textContent = "";
+        topRightButton.hidden = true;
+    }
+    this.refresh = function(playlistName,playlistId) {
+        topRightButton = removeListeners(topRightButton);
+        topRightButton.firstElementChild.textContent = "home";
+        topRightButton.addEventListener("click",(evt)=>{
+            evt.preventDefault();
+            orderPage.hide();
+            homePage.show();
+        });
+        firstH1.textContent = "Reorder : "+playlistName;
+        dragAndDropTable.refresh(playlistId);
+        this.show();
     }
 }

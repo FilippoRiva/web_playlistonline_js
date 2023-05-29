@@ -34,3 +34,7 @@ function removeListeners(node){
     node.parentElement.replaceChild(nodeClone,node);
     return nodeClone
 }
+
+function replaceNode(node){
+    return removeListeners(node);
+}

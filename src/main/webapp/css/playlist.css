@@ -1,6 +1,3 @@
-@import url(style.css);
-@import url(artists-table.css);
-
 img, .album-cover{
     object-fit: cover;
     width: 300px;

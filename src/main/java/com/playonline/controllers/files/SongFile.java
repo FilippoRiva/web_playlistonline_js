@@ -25,7 +25,7 @@ public class SongFile extends HttpServlet {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
         if(user==null){
-            resp.sendRedirect("home");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         // input parsing
@@ -66,5 +66,4 @@ public class SongFile extends HttpServlet {
             }
         }
     }
-
 }

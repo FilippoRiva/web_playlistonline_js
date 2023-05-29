@@ -10,14 +10,13 @@
     <title>PlaylistOnline</title>
 </head>
 <body>
-    <a id="top-right-button" href="#" style="position:fixed; top: 10px; right: 10px">
+    <a id="top-right-button" href="" style="position:fixed; top: 10px; right: 10px">
         <div class="button">
         </div>
     </a>
 
-    <div hidden class="song-container" id="song-container">
+    <div class="song-container" id="song-container">
         <div class="album-cover">
-            <img src="#">
         </div>
         <div class="song-block">
             <div class="song-info">
@@ -26,8 +25,7 @@
                 <div class="releaseDate-genre">genre</div>
             </div>
             <div class="audio-player">
-                <audio controls>
-                    <source id="audioSource" src="#">
+                <audio controls id="audio">
                     No support
                 </audio>
             </div>
@@ -41,7 +39,7 @@
 
     <template id="temp-playlistRow">
         <tr class="row">
-            <td><a class="left" href="#"></a></td>
+            <td><a class="left"></a></td>
             <td><span class="right"></span></td>
         </tr>
     </template>
@@ -58,7 +56,7 @@
     </div>
 
     <template id="song-nav-info">
-        <a href="#">
+        <a>
             <div class="song-info" >
                 <div class="album-cover">
                     <img src="#">
@@ -75,7 +73,7 @@
 
     <h1 id="secondH1"></h1>
 
-    <form hidden class="song-form" id="song-form" action = "#" method = "post" autocomplete="off"  enctype="multipart/form-data">
+    <form hidden class="song-form" id="song-form" method = "post" autocomplete="off"  enctype="multipart/form-data">
         <table>
             <tr class="row">
                 <td><label class="left" for="s_title" >Title</label></td>
@@ -93,15 +91,21 @@
                         <option value="blues">Blues</option>
                         <option value="soul">Soul</option>
                         <option value="funk">Funk</option>
+                        <option value="jazz">Jazz</option>
+                        <option value="LoFi">Lo-Fi</option>
+                        <option value="indie">Indie</option>
+                        <option value="metal">Metal</option>
+                        <option value="classic">Classic</option>
+                        <option value="other">Other</option>
                     </select>
                 </td>
             </tr>
             <tr class="album-switch-container">
                 <td class="album-switch" id="toNewAlbum">
-                    <button class="button" type="submit" formaction="#">New Album</button>
+                    <button class="button" type="submit">New Album</button>
                 </td>
                 <td class="album-switch" id="toExistingAlbums">
-                    <button class="button" type="submit" formaction="#">Existing Album</button>
+                    <button class="button" type="submit">Existing Album</button>
                 </td>
             </tr>
             <tr class="row">
@@ -147,7 +151,7 @@
 
     <h1 id="thirdH1"></h1>
 
-    <form hidden class="remaining-songs-form" id="remaining-songs-form" action = "#" method = "post" autocomplete="off">
+    <form hidden class="remaining-songs-form" id="remaining-songs-form" method = "post" autocomplete="off">
         <div class="row">
             <label class="left" for="p_title" >Title:</label>
             <input class="right" type="text" id="p_title" name="p_title"><br>

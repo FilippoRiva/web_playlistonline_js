@@ -406,14 +406,13 @@ function SongNavigator(songNavigation,templateSongNavInfo) {
 }
 
 function SongPlayer(songContainer) {
-    this.img = songContainer.querySelector(".album-cover").firstElementChild;
+    this.img = songContainer.querySelector(".album-cover");
     this.songTitle = songContainer.querySelector(".song-title");
     this.artistAlbum = songContainer.querySelector(".artist-album");
     this.releaseDateGenre = songContainer.querySelector(".releaseDate-genre");
-    this.audioSource = songContainer.querySelector("#audioSource")
+    this.audio = songContainer.querySelector("#audio")
     this.show = function () {
-        songContainer.hidden = false;
-        songContainer.style.visibility = "visible";
+        songContainer.style.display = "flex";
     }
     this.hidden = function () {
         songContainer.hidden = true;
@@ -426,8 +425,15 @@ function SongPlayer(songContainer) {
                 this.songTitle.textContent = song.title;
                 this.artistAlbum.textContent = song.album.artist.name + " - " + song.album.name;
                 this.releaseDateGenre.textContent = song.album["date"] + " - " + song["genre"]["name"];
-                this.audioSource.src = "/PlaylistOnlineJS/songfile?id="+songId;
-                this.img.src = "/PlaylistOnlineJS/cover?arID="+song.album.artist["ID"]+"&aID="+song.album.id;
+                let source = document.createElement("source");
+                source.src = "/PlaylistOnlineJS/songfile?id="+songId+"&arID="+song.album.artist["ID"]+"&aID="+song.album.id;
+                removeChildNodes(this.audio);
+                this.audio = replaceNode(this.audio);
+                this.audio.appendChild(source);
+                let imgSrc = document.createElement("img");
+                imgSrc.src = "/PlaylistOnlineJS/cover?arID="+song.album.artist["ID"]+"&aID="+song.album.id;
+                removeChildNodes(this.img);
+                this.img.appendChild(imgSrc);
                 this.show();
             } else {
                 console.log("unable to get song data");

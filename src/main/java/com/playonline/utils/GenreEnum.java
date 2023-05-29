@@ -7,7 +7,13 @@ public enum GenreEnum {
     EDM("Edm",4),
     BLUES("Blues",5),
     SOUL("Soul",6),
-    FUNK("Funk",7);
+    FUNK("Funk",7),
+    JAZZ("Jazz",8),
+    LOFI("LoFi",9),
+    INDIE("Indie",10),
+    METAL("Metal",11),
+    CLASSIC("Classic",12),
+    OTHERS("Others",13);
     final String name;
     final int id;
     GenreEnum(String name, int id){
