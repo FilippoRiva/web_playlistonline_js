@@ -15,6 +15,10 @@
         </div>
     </a>
 
+    <div class="messageOverlay" id="messageOverlay">
+        Exception
+    </div>
+
     <div class="song-container" id="song-container">
         <div class="album-cover">
         </div>
@@ -41,6 +45,7 @@
         <tr class="row">
             <td><a class="left"></a></td>
             <td><span class="right"></span></td>
+            <td><a class="reorderLink">reorder</a></td>
         </tr>
     </template>
 
@@ -69,6 +74,51 @@
                 </div>
             </div>
         </a>
+    </template>
+
+    <table id="reorder-table" hidden>
+        <thead>
+        <tr>
+            <td>
+                Position
+            </td>
+            <td>
+                Artist
+            </td>
+            <td>
+                Album
+            </td>
+            <td>
+                Title
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>
+                <a id = "#reorder-confirm">
+                    <div class="button">
+                        Confirm
+                    </div>
+                </a>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <template id="reorder-table-row-template">
+        <tr draggable="true" class="reorder-row">
+            <td id="position">
+            </td>
+            <td id="artist">
+            </td>
+            <td id="album">
+            </td>
+            <td id="title">
+            </td>
+        </tr>
     </template>
 
     <h1 id="secondH1"></h1>

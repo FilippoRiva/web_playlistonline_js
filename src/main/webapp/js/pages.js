@@ -11,7 +11,13 @@ function HomePage(playlistList,songForm,remainingSongs){
         //adding logout functionality
         topRightButton.addEventListener("click",(evt)=> {
             evt.preventDefault();
-            logout();
+            makeCall("post", "/PlaylistOnlineJS/logout", null, (req) => {
+                if(req.status === 200){
+                    window.location.href = req.responseURL;
+                } else {
+                    messageOverlay.showMessage("Unable to Logout");
+                }
+            })
         },false);
 
         //showing top button
@@ -56,7 +62,9 @@ function PlaylistPage(songNavigator,remainingSongs) {
     this.songNavigator = songNavigator;
     this.remainingSongs = remainingSongs;
     this.show = function(playlistName) {
+
         if(playlistName) this.playlistName = playlistName;
+
         //removing listeners to top right button
         let buttonCopy = topRightButton.cloneNode(true);
         topRightButton.parentElement.replaceChild(buttonCopy, topRightButton);
@@ -79,6 +87,7 @@ function PlaylistPage(songNavigator,remainingSongs) {
         secondH1.textContent = "Add Songs";
         remainingSongs.show();
     }
+
     this.hide = function() {
         topRightButton.hidden = true;
         firstH1.textContent="";
@@ -86,11 +95,13 @@ function PlaylistPage(songNavigator,remainingSongs) {
         secondH1.textContent="";
         remainingSongs.hide();
     }
+
     this.refresh = function(playlistName,playlistID){
         songNavigator.refresh(playlistName,playlistID);
         remainingSongs.refresh(false,playlistID,playlistName);
         this.show(playlistName,playlistID);
     }
+
 }
 
 function SongPage(songContainer) {
@@ -118,7 +129,6 @@ function SongPage(songContainer) {
 }
 
 function OrderPage(dragAndDropTable) {
-    this.dragAndDropTable = dragAndDropTable;
     this.show = function(){
         dragAndDropTable.show();
         topRightButton.hidden = false;
@@ -139,5 +149,16 @@ function OrderPage(dragAndDropTable) {
         firstH1.textContent = "Reorder : "+playlistName;
         dragAndDropTable.refresh(playlistId);
         this.show();
+    }
+}
+
+function MessageOverlay(exceptionDiv){
+    exceptionDiv.hidden = true;
+    this.showMessage = function(message){
+        exceptionDiv.innerText = message;
+        exceptionDiv.hidden = false;
+        window.setTimeout(()=>{
+            exceptionDiv.hidden = true;
+        },5000);
     }
 }

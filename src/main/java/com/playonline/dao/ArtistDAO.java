@@ -5,22 +5,20 @@ import com.playonline.beans.Artist;
 import java.sql.*;
 
 public class ArtistDAO {
-   PreparedStatement addArtistStatement;
-   PreparedStatement getArtistByUsernameStatement;
-    public ArtistDAO(Connection connection) throws SQLException {
-        String addArtistQuery = "INSERT INTO artist(ar_name) VALUES(?)";
-        String getArtistByUsername = "SELECT  ar_ID, ar_name " +
-                "FROM song JOIN album ON s_album_ID=a_ID " +
-                "JOIN artist ON a_artist_ID=ar_ID " +
-                "WHERE s_owner=?" +
-                "GROUP BY ar_ID";
-        addArtistStatement = connection.prepareStatement(addArtistQuery,Statement.RETURN_GENERATED_KEYS);
-        getArtistByUsernameStatement = connection.prepareStatement(getArtistByUsername);
+    private final Connection connection;
+    public ArtistDAO(Connection connection){
+        this.connection = connection;
     }
 
 
     public Artist addArtist(String username, String arName) throws SQLException {
         //existing artist
+        String getArtistByUsername = "SELECT  ar_ID, ar_name " +
+                "FROM song JOIN album ON s_album_ID=a_ID " +
+                "JOIN artist ON a_artist_ID=ar_ID " +
+                "WHERE s_owner=?" +
+                "GROUP BY ar_ID";
+        PreparedStatement getArtistByUsernameStatement = connection.prepareStatement(getArtistByUsername);
         getArtistByUsernameStatement.setString(1,username);
         ResultSet result = getArtistByUsernameStatement.executeQuery();
         while(result.next()){
@@ -28,10 +26,13 @@ public class ArtistDAO {
                 Artist artist = new Artist();
                 artist.setName(result.getString("ar_name"));
                 artist.setID(result.getInt("ar_ID"));
+                getArtistByUsernameStatement.close();
                 return artist;
             }
         }
         //new artist
+        String addArtistQuery = "INSERT INTO artist(ar_name) VALUES(?)";
+        PreparedStatement addArtistStatement = connection.prepareStatement(addArtistQuery,Statement.RETURN_GENERATED_KEYS);
         addArtistStatement.setString(1,arName);
         addArtistStatement.executeUpdate();
         result = addArtistStatement.getGeneratedKeys();
@@ -40,6 +41,8 @@ public class ArtistDAO {
         Artist artist = new Artist();
         artist.setName(arName);
         artist.setID(key);
+        getArtistByUsernameStatement.close();
+        addArtistStatement.close();
         return artist;
     }
 }

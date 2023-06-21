@@ -18,13 +18,19 @@ function PlaylistList(table,rowTemplate){
                     playlists.forEach(function(playlist){
                         let playlistRow =  rowTemplate.content.cloneNode(true);
                         let left = playlistRow.querySelector(".left");
+                        let reorderLink = playlistRow.querySelector(".reorderLink");
                         left.textContent = playlist.name;
                         left.addEventListener("click",(evt)=>{
                             evt.preventDefault();
                             homePage.remainingSongs.saveInBuffer();
                             homePage.hide();
                             playlistPage.refresh(playlist.name,playlist.id);
-                        })
+                        });
+                        reorderLink.addEventListener("click",(evt)=>{
+                            evt.preventDefault();
+                            homePage.hide();
+                            orderPage.refresh(playlist.name,playlist.id);
+                        });
                         let right = playlistRow.querySelector(".right");
                         right.textContent = playlist["date"];
                         table.appendChild(playlistRow)
@@ -36,7 +42,7 @@ function PlaylistList(table,rowTemplate){
                 //show
                 self.show(playlists);
             } else {
-                console.log("failed to retrieve user playlists")
+                messageOverlay.showMessage("Unable to retrieve playlists from server")
             }
         })
     }
@@ -99,7 +105,7 @@ function SongForm(form){
                     self.infoText.textContent = " ";
                 },2000)
             }
-        },true)
+        });
     })
     //dynamic coloring of song file and cover buttons
     form.querySelector("#s_file").addEventListener("change",function(evt){
@@ -174,29 +180,29 @@ function SongForm(form){
     }
 
     this.refresh = function(selectedID,state) {
-        makeCall("get","/PlaylistOnlineJS/albums",null,(req)=>{
-            if(req.status===200){
+        makeCall("get","/PlaylistOnlineJS/albums",null,(req)=> {
+            if (req.status === 200) {
                 this.albums = JSON.parse(req.responseText);
 
                 //updating album list
                 removeChildNodes(this.select);
                 let self = this;
-                this.albums.forEach(function(album){
+                this.albums.forEach(function (album) {
                     let option = document.createElement("option");
-                    option.textContent = album.artist.name +" - "+album.name;
+                    option.textContent = album.artist.name + " - " + album.name;
                     option.value = album.id;
                     self.select.appendChild(option);
                 });
 
-                if(state){
-                    this.show(state,selectedID);
+                if (state) {
+                    this.show(state, selectedID);
                 } else {
-                    this.show(this.currentState,selectedID);
+                    this.show(this.currentState, selectedID);
                 }
             } else {
-                console.log("unable to get albums list");
+                messageOverlay.showMessage("Unable to retrieve user albums from server");
             }
-        },false);
+        });
     }
 }
 
@@ -231,9 +237,9 @@ function RemainingSongs(form,templateArtist,templateAlbum,templateCheckbox){
                 homePage.playlistList.refresh();
                 homePage.remainingSongs.refresh();
             } else {
-                console.log("unable to create playlist");
+                messageOverlay.showMessage("Unable to create playlist");
             }
-        },true);
+        });
     }
 
     this.refresh = function(homePageBuffering = false,playlistID,playlistName) {
@@ -251,9 +257,9 @@ function RemainingSongs(form,templateArtist,templateAlbum,templateCheckbox){
                     if(req.status===200){
                         playlistPage.refresh(playlistName,playlistID);
                     } else {
-                        console.log("unable to get remaining artists data");
+                        messageOverlay.showMessage("Unable to create playlist");
                     }
-                },true);
+                });
             })
             //getting remaining artists and showing them
             makeCall("get","/PlaylistOnlineJS/remaining-artists?p_ID="+playlistID,null,(req)=>{
@@ -262,7 +268,7 @@ function RemainingSongs(form,templateArtist,templateAlbum,templateCheckbox){
                     this.titleRow.hidden = true;
                     this.show();
                 } else {
-                    console.log("unable to get remaining artists data");
+                    messageOverlay.showMessage("Unable to retrieve remaining artists from server");
                 }
             })
         } else {
@@ -276,9 +282,9 @@ function RemainingSongs(form,templateArtist,templateAlbum,templateCheckbox){
                     this.titleRow.hidden = false;
                     this.show();
                 } else {
-                    console.log("unable to get artists data")
+                    messageOverlay.showMessage("Unable to retrieve artists from server");
                 }
-            },false);
+            });
         }
     }
 
@@ -352,7 +358,7 @@ function SongNavigator(songNavigation,templateSongNavInfo) {
                 }
                 this.changePage(this.currentPage);
             } else {
-                console.log("unable to get playlist");
+                messageOverlay.showMessage("Unable to retrieve playlist songs from server");
             }
         });
     }
@@ -414,9 +420,8 @@ function SongPlayer(songContainer) {
     this.show = function () {
         songContainer.style.display = "flex";
     }
-    this.hidden = function () {
-        songContainer.hidden = true;
-        songContainer.style.visibility = "hidden";
+    this.hide = function () {
+        songContainer.style.display = "none";
     }
     this.refresh = function (songId) {
         makeCall("get","/PlaylistOnlineJS/song?id="+songId,null,(req)=>{
@@ -436,8 +441,84 @@ function SongPlayer(songContainer) {
                 this.img.appendChild(imgSrc);
                 this.show();
             } else {
-                console.log("unable to get song data");
+                messageOverlay.showMessage("Unable to retrieve song info");
             }
         });
+    }
+}
+
+function DragAndDropTable(table,orderTableRowTemplate){
+    this.movingRowIndex = -1;
+    this.dropRowIndex = -1;
+    this.playlistSongs = undefined;
+    this.confirm = table.lastElementChild.firstElementChild.firstElementChild.firstElementChild;
+    this.show = function(){
+        table.hidden = false;
+    }
+    this.hide = function(){
+        table.hidden = true;
+    }
+    this.refresh = function(playlistID){
+        //getting new rows and updating the table
+        makeCall("get","/PlaylistOnlineJS/playlist?id="+playlistID,null,(req)=>{
+            if(req.status === 200){
+                this.playlistSongs = Array.from(JSON.parse(req.responseText)["songs"]);
+                this.updateList(playlistID);
+                this.show();
+            } else {
+                messageOverlay.showMessage("Unable to get playlist info");
+            }
+        });
+    }
+
+    this.updateList = function(playlistID){
+        let tbody = table.firstElementChild.nextElementSibling;
+
+        //removing old rows
+        removeChildNodes(tbody);
+
+        for(let i = 1 ; i<=this.playlistSongs.length ; i++){
+            let song = this.playlistSongs.at(i-1);
+            let row = orderTableRowTemplate.content.cloneNode(true);
+            let position = row.querySelector("#position");
+            let artist = row.querySelector("#artist");
+            let album = row.querySelector("#album");
+            let title = row.querySelector("#title");
+            position.textContent = i;
+            artist.textContent = song.album.artist.name;
+            album.textContent = song.album.name;
+            title.textContent = song.title;
+            position.ondragstart = function() {
+                return false;
+            }
+            row.firstElementChild.addEventListener("dragstart",()=>{
+                this.movingRowIndex = i-1;
+            });
+            row.firstElementChild.addEventListener("dragenter",()=>{
+                this.dropRowIndex = i-1;
+                this.moveDraggedRow();
+                this.movingRowIndex = i-1;
+                this.updateList(playlistID);
+            })
+            tbody.appendChild(row);
+        }
+
+        this.confirm = removeListeners(this.confirm);
+        this.confirm.addEventListener("click",(evt)=>{
+            evt.preventDefault();
+            makeCall("post","/PlaylistOnlineJS/reorder?id="+playlistID,null,(req)=>{
+                if(req.status===200){
+                    orderPage.hide();
+                    homePage.show();
+                } else {
+                    messageOverlay.showMessage("Unable to reorder playlist")
+                }
+            },JSON.stringify(reduceSongList(this.playlistSongs)));
+        });
+    }
+
+    this.moveDraggedRow = function(){
+        let elementToMove = this.playlistSongs.splice(this.movingRowIndex,1);
+        this.playlistSongs.splice(this.dropRowIndex,0,elementToMove.at(0));
     }
 }

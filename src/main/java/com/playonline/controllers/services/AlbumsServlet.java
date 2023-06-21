@@ -18,15 +18,10 @@ import java.util.List;
 
 @WebServlet("/albums")
 public class AlbumsServlet extends HttpServlet {
-    private AlbumDAO albumDAO;
+    private Connection connection;
     @Override
     public void init() throws ServletException {
-        Connection connection = MySQLConnections.getConnection(getServletContext());
-        try {
-            this.albumDAO = new AlbumDAO(connection,"");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        this.connection = MySQLConnections.getConnection(getServletContext());
     }
 
     @Override
@@ -39,7 +34,7 @@ public class AlbumsServlet extends HttpServlet {
         }
         List<Album> albums;
         try {
-            albums = albumDAO.getUserAlbums(user.getUsername());
+            albums = new AlbumDAO(connection,"").getUserAlbums(user.getUsername());
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;

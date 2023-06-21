@@ -24,3 +24,20 @@ table {
     position: relative;
     width: 100%;
 }
+
+.reorder-row {
+    border: 0 solid var(--color-primary);
+}
+
+.reorder-row:hover {
+    background: var(--color-complementary);
+    cursor: grab;
+}
+
+.reorder-row:-moz-drag-over{
+    background: var(--color-primary);
+}
+
+.reorder-row > * {
+    background: none;
+}

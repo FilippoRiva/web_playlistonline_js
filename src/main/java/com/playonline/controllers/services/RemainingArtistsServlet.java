@@ -7,25 +7,21 @@ import com.playonline.dao.PlaylistDAO;
 import com.playonline.utils.MySQLConnections;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 @WebServlet("/remaining-artists")
 public class RemainingArtistsServlet extends HttpServlet {
-    PlaylistDAO playlistDAO;
+    private Connection connection;
     @Override
     public void init() throws ServletException {
-        try {
-            this.playlistDAO = new PlaylistDAO(MySQLConnections.getConnection(getServletContext()));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        this.connection = MySQLConnections.getConnection(getServletContext());
     }
 
     @Override
@@ -46,7 +42,7 @@ public class RemainingArtistsServlet extends HttpServlet {
         }
         List<Artist> remainingArtists;
         try {
-            remainingArtists = playlistDAO.getRemainingArtists(p_ID,user.getUsername());
+            remainingArtists = new PlaylistDAO(connection).getRemainingArtists(p_ID,user.getUsername());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

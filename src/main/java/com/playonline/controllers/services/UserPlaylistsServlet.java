@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.playonline.beans.Playlist;
 import com.playonline.beans.User;
 import com.playonline.dao.PlaylistDAO;
-import com.playonline.dao.SongDAO;
 import com.playonline.utils.MySQLConnections;
 
 import javax.servlet.ServletException;
@@ -20,17 +19,10 @@ import java.util.List;
 @WebServlet("/user-playlists")
 public class UserPlaylistsServlet extends HttpServlet {
 
-    PlaylistDAO playlistDAO;
-    SongDAO songDAO;
+    private Connection connection;
     @Override
     public void init() throws ServletException {
-        try {
-            Connection connection = MySQLConnections.getConnection(getServletContext());
-            playlistDAO = new PlaylistDAO(connection);
-            songDAO = new SongDAO(connection, "");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        this.connection = MySQLConnections.getConnection(getServletContext());
     }
 
     //returns the list of all the user's playlists
@@ -45,7 +37,7 @@ public class UserPlaylistsServlet extends HttpServlet {
         //getting playlists
         List<Playlist> playlists;
         try {
-            playlists = playlistDAO.getUserPlaylists(user.getUsername());
+            playlists = new PlaylistDAO(connection).getUserPlaylists(user.getUsername());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

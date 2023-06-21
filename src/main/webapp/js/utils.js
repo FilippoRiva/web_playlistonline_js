@@ -1,4 +1,4 @@
-function makeCall(method, url, formElement, callback) {
+function makeCall(method, url, formElement, callback, json) {
     let req = new XMLHttpRequest();
     req.onreadystatechange = function() {
         if(req.readyState===4){
@@ -6,7 +6,9 @@ function makeCall(method, url, formElement, callback) {
         }
     };
     req.open(method, url);
-    if (formElement === null) {
+    if(json){
+        req.send(json);
+    } else if (formElement === null) {
         req.send();
     } else {
         req.send(new FormData(formElement));
@@ -14,27 +16,29 @@ function makeCall(method, url, formElement, callback) {
 }
 
 function removeChildNodes(parent) {
-    while(parent.firstChild){ //live collection
+    while(parent.firstChild){ //children are a live collection
         parent.removeChild(parent.firstChild);
     }
 }
 
-function logout() {
-    makeCall("post", "/PlaylistOnlineJS/logout", null, (req) => {
-        if(req.status === 200){ //ok status code(sent with temporary redirect
-            window.location.href = req.responseURL;
-        } else {
-            console.log("logout failed");
-        }
-    })
-}
-
 function removeListeners(node){
-    let nodeClone = node.cloneNode(true);
-    node.parentElement.replaceChild(nodeClone,node);
-    return nodeClone
+    return replaceNode(node);
 }
 
 function replaceNode(node){
-    return removeListeners(node);
+    let nodeClone = node.cloneNode(true);
+    node.parentElement.replaceChild(nodeClone,node);
+    return nodeClone;
+}
+
+function reduceSongList(songList){ //used to generate a JSON of IDs ignoring other values
+    let result = [];
+    for(let songIndex in songList){
+        let song = songList.at(songIndex)
+        let songCopy = {
+            id: song.id
+        }
+        result = result.concat(songCopy);
+    }
+    return result;
 }

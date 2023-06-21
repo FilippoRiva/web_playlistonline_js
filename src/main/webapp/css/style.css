@@ -9,6 +9,7 @@
     background: black;
     font-size: 22px;
     overflow: scroll;
+    user-select: none;
 }
 
 html, body {
@@ -90,6 +91,17 @@ input {
 
 input[type=text], input[type=password]{
     text-align: center;
+}
+
+.messageOverlay{
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: fit-content;
+    height: fit-content;
+    font-size: 30px;
+    border: 10px;
+    background: var(--color-primary);
 }
 
 @keyframes toGreenColor {

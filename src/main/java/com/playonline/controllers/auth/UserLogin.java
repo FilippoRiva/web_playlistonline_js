@@ -19,23 +19,13 @@ import java.sql.*;
 @WebServlet("/login")
 @MultipartConfig
 public class UserLogin extends HttpServlet{
-
-    private UserDAO userDAO;
     private Htmls htmls;
-
+    private Connection connection;
     @Override
     public void init(){
         ServletContext context = getServletContext();
-
-        this.htmls = new Htmls(context);
-
-        Connection connection = MySQLConnections.getConnection(context);
-        try {
-            userDAO = new UserDAO(connection);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
+        this.htmls = Htmls.getInstance(context);
+        this.connection = MySQLConnections.getConnection(context);
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -52,7 +42,7 @@ public class UserLogin extends HttpServlet{
                 if (c.getName().equals("LOGIN_INFO")) {
                     User user;
                     try {
-                        user = userDAO.checkCookie(c.getValue());
+                        user = new UserDAO(connection).checkCookie(c.getValue());
                     } catch (SQLException e) {
                         resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         return;
@@ -76,7 +66,7 @@ public class UserLogin extends HttpServlet{
         // validity check
         User user = null;
         try {
-            user = userDAO.checkCredentials(username,password);
+            user = new UserDAO(connection).checkCredentials(username,password);
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }

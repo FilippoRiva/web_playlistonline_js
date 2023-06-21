@@ -1,7 +1,6 @@
 package com.playonline.controllers.services;
 
 import com.google.gson.Gson;
-import com.mysql.cj.protocol.a.BooleanValueEncoder;
 import com.playonline.beans.Album;
 import com.playonline.beans.Artist;
 import com.playonline.beans.Song;
@@ -29,27 +28,15 @@ import java.util.Date;
 
 @WebServlet("/song")
 @MultipartConfig
-public class SongServlet extends HttpServlet {
-    Connection connection;
-    SongDAO songDAO;
-    ArtistDAO artistDAO;
-    AlbumDAO albumDAO;
-
+public class SongsServlet extends HttpServlet {
+    private Connection connection;
+    private String filesDirectory;
     @Override
     public void init() {
-        try {
-            Connection connection = MySQLConnections.getConnection(getServletContext());
-            this.songDAO = new SongDAO(connection,getInitParameter("filesDirectory"));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        this.filesDirectory = getServletContext().getInitParameter("filesDirectory");
         this.connection = MySQLConnections.getConnection(getServletContext());
-        String filesDirectory = getServletContext().getInitParameter("filesDirectory");
         try {
-            connection.setAutoCommit(false);
-            artistDAO = new ArtistDAO(connection);
-            songDAO = new SongDAO(connection,filesDirectory);
-            albumDAO = new AlbumDAO(connection,filesDirectory);
+            this.connection.setAutoCommit(false);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -77,7 +64,7 @@ public class SongServlet extends HttpServlet {
         // page templating
         Song song;
         try {
-            song = songDAO.getSongByID(id, user.getUsername());
+            song = new SongDAO(connection,filesDirectory).getSongByID(id, user.getUsername());
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
@@ -165,6 +152,9 @@ public class SongServlet extends HttpServlet {
         // db update
         Album album = null;
         Artist artist;
+        ArtistDAO artistDAO = new ArtistDAO(connection);
+        AlbumDAO albumDAO = new AlbumDAO(connection,filesDirectory);
+        SongDAO songDAO = new SongDAO(connection,filesDirectory);
         try {
             if(!existing) {
                 artist = artistDAO.addArtist(user.getUsername(),ar_name);

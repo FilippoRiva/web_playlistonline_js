@@ -1,7 +1,6 @@
 package com.playonline.controllers.services;
 
 import com.google.gson.Gson;
-import com.playonline.beans.Artist;
 import com.playonline.beans.Playlist;
 import com.playonline.beans.User;
 import com.playonline.dao.PlaylistDAO;
@@ -16,24 +15,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 
 @WebServlet("/playlist")
 @MultipartConfig
-public class PlaylistServlet extends HttpServlet {
+public class PlaylistsServlet extends HttpServlet {
     Connection connection;
-    PlaylistDAO playlistDAO;
-    SongDAO songDAO;
     @Override
     public void init(){
-        try {
-            this.connection = MySQLConnections.getConnection(getServletContext());
-            this.playlistDAO = new PlaylistDAO(connection);
-            this.songDAO = new SongDAO(connection,"");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        this.connection = MySQLConnections.getConnection(getServletContext());
     }
 
     //returns the requested playlist's songs infos
@@ -60,7 +50,7 @@ public class PlaylistServlet extends HttpServlet {
         // database query
         Playlist playlist;
         try {
-            playlist = playlistDAO.getPlaylist(p_ID, user.getUsername());
+            playlist = new PlaylistDAO(connection).getPlaylist(p_ID, user.getUsername());
             if(playlist==null){
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
                 return;
@@ -100,6 +90,8 @@ public class PlaylistServlet extends HttpServlet {
         // database update
         String[] songIDs = parameters.get("s_ID");
         try {
+            PlaylistDAO playlistDAO = new PlaylistDAO(connection);
+            SongDAO songDAO = new SongDAO(connection,"");
             for (String s_ID : songIDs) {
                 try {
                     int id = Integer.parseInt(s_ID);
@@ -109,7 +101,6 @@ public class PlaylistServlet extends HttpServlet {
             }
         } catch (SQLException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return;
         }
     }
 }

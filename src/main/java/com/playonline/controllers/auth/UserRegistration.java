@@ -16,17 +16,11 @@ import java.sql.*;
 @WebServlet("/registration")
 @MultipartConfig
 public class UserRegistration extends HttpServlet {
-
-    private UserDAO userDAO;
+    private Connection connection;
 
     @Override
     public void init() {
-        Connection connection = MySQLConnections.getConnection(getServletContext());
-        try {
-            userDAO = new UserDAO(connection);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        this.connection = MySQLConnections.getConnection(getServletContext());
     }
 
     @Override
@@ -54,6 +48,7 @@ public class UserRegistration extends HttpServlet {
         // registration attempt
         String cookieVal;
         try {
+            UserDAO userDAO = new UserDAO(connection);
             if(!userDAO.isUsernameAvailable(username)){
                 resp.setStatus(401);
                 out.print("username not available");

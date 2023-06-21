@@ -27,17 +27,20 @@ let pageSwitch = function (evt) {
 }
 
 window.onload = function () {
-   makeCall("post","/PlaylistOnlineJS/login",form,(req)=>{
+
+   makeCall("post","/PlaylistOnlineJS/login",form,(req)=>{ //checking cookie
       let message = req.responseText;
       if(req.status === 200){
-         window.sessionStorage.setItem("username",message);
+         window.sessionStorage.setItem("username",message); //storing username
          window.location.href = "/PlaylistOnlineJS/home";
       }
    });
+
    topButton.addEventListener("click",evt=>{pageSwitch(evt)},false);
+
    submitButton.addEventListener("click",evt => {
       evt.preventDefault();
-      if(state==="login"){
+      if(state==="login"){ //login
          makeCall("post","/PlaylistOnlineJS/login",form,(req)=>{
             let message = req.responseText;
             if(req.status === 200){
@@ -49,8 +52,8 @@ window.onload = function () {
                   errorMessage.textContent = " ";
                },2000)
             }
-         },false)
-      } else {
+         })
+      } else { //registration
          makeCall("post","/PlaylistOnlineJS/registration",form,(req)=>{
             if(req.readyState === 4){
                let message = req.responseText;
@@ -63,7 +66,7 @@ window.onload = function () {
                   },2000)
                }
             }
-         },false)
+         })
       }
    });
 }

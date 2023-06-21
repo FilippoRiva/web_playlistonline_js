@@ -1,4 +1,4 @@
-package com.playonline.controllers.forms;
+package com.playonline.controllers.services;
 
 import com.playonline.beans.User;
 import com.playonline.dao.PlaylistDAO;
@@ -19,19 +19,15 @@ import java.util.Map;
 
 @WebServlet("/playlist-create")
 @MultipartConfig
-public class PlaylistCreate extends HttpServlet {
-    PlaylistDAO playlistDAO;
-    SongDAO songDAO;
+public class PlaylistsCreateServlet extends HttpServlet {
     Connection connection;
     RequestDispatcher homeDispatcher;
     @Override
     public void init(){
         homeDispatcher = getServletContext().getRequestDispatcher("/home");
+        this.connection = MySQLConnections.getConnection(getServletContext());
         try {
-            this.connection = MySQLConnections.getConnection(getServletContext());
             connection.setAutoCommit(false);
-            this.playlistDAO = new PlaylistDAO(connection);
-            this.songDAO = new SongDAO(connection,""); //no need to upload files here
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -56,6 +52,8 @@ public class PlaylistCreate extends HttpServlet {
         Map<String,String[]> parameters = req.getParameterMap();
         String[] songIDs = parameters.get("s_ID");
         try {
+            PlaylistDAO playlistDAO = new PlaylistDAO(connection);
+            SongDAO songDAO = new SongDAO(connection,"");
             int p_ID = playlistDAO.createPlaylist(username, title);
             if (songIDs != null) {
                 for (String s_ID : songIDs) {
