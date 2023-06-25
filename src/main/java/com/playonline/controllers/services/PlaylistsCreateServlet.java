@@ -59,7 +59,7 @@ public class PlaylistsCreateServlet extends HttpServlet {
                 for (String s_ID : songIDs) {
                     try {
                         int id = Integer.parseInt(s_ID);
-                        if(songDAO.isOwner(user.getUsername(),id)) playlistDAO.addSongToPlaylist(p_ID, id);
+                        if(songDAO.isOwner(user.getUsername(),id)) playlistDAO.addSongToPlaylist(user.getUsername(),p_ID, id);
                     } catch (NumberFormatException ignored) { // ignoring non parsable IDs
                     }
                 }

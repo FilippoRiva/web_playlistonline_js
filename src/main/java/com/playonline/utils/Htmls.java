@@ -10,7 +10,7 @@ public class Htmls {
     public final String homePage;
     private static Htmls instance;
 
-    public Htmls(ServletContext context){
+    private Htmls(ServletContext context){
         try {
             Path file = Path.of(context.getResource("login.html").getPath());
             this.loginPage = Files.readString(file);
