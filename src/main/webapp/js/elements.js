@@ -312,7 +312,7 @@ function RemainingSongs(form, templateArtist, templateAlbum, templateCheckbox) {
                 artist.albums.forEach(function (album) {
                     let albumNode = templateAlbum.content.cloneNode(true);
                     albumNode.firstElementChild.firstElementChild.textContent = album.name;
-                    let albumCheckBoxContainer = albumNode.firstElementChild.lastElementChild.firstChild.firstChild.firstChild.firstChild;
+                    let albumCheckBoxContainer = albumNode.firstElementChild.lastElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild;
                     album["songs"].forEach(function (song) {
                         let checkbox = templateCheckbox.content.cloneNode(true);
                         checkbox.firstElementChild.firstElementChild.value = song.id;
