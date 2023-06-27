@@ -19,6 +19,7 @@ import java.util.List;
 @WebServlet("/remaining-artists")
 public class RemainingArtistsServlet extends HttpServlet {
     private Connection connection;
+
     @Override
     public void init() throws ServletException {
         this.connection = MySQLConnections.getConnection(getServletContext());
@@ -27,23 +28,25 @@ public class RemainingArtistsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User user = (User) req.getSession().getAttribute("user");
-        if(user==null){
+        if (user == null) {
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("/PlaylistOnlineJS/login");
             return;
         }
         String p_ID_str = req.getParameter("p_ID");
         int p_ID;
-        try{
+        try {
             p_ID = Integer.parseInt(p_ID_str);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("playlist ID is not a valid");
             return;
         }
         List<Artist> remainingArtists;
         try {
-            remainingArtists = new PlaylistDAO(connection).getRemainingArtists(p_ID,user.getUsername());
+            remainingArtists = new PlaylistDAO(connection).getRemainingArtists(p_ID, user.getUsername());
         } catch (SQLException e) {
+            resp.getWriter().write("Internal server error");
             throw new RuntimeException(e);
         }
         Gson gson = new Gson();

@@ -31,6 +31,7 @@ import java.util.Date;
 public class SongsServlet extends HttpServlet {
     private Connection connection;
     private String filesDirectory;
+
     @Override
     public void init() {
         this.filesDirectory = getServletContext().getInitParameter("filesDirectory");
@@ -47,35 +48,39 @@ public class SongsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
-        if(user==null){
+        if (user == null) {
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
         // input parsing
         String id_str = req.getParameter("id");
         int id;
-        try{
+        try {
             id = Integer.parseInt(id_str);
-        } catch (NumberFormatException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Invalid Playlist ID");
             return;
         }
 
         // page templating
         Song song;
         try {
-            song = new SongDAO(connection,filesDirectory).getSongByID(id, user.getUsername());
+            song = new SongDAO(connection, filesDirectory).getSongByID(id, user.getUsername());
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
             return;
         }
-        if(song==null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        if (song == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Invalid username-song couple");
             return;
         }
         Gson gson = new Gson();
         resp.setContentType("application/json");
-        resp.getWriter().write(gson.toJson(song,song.getClass()));
+        resp.getWriter().write(gson.toJson(song, song.getClass()));
     }
 
     //adds a song to the user's songs
@@ -83,7 +88,8 @@ public class SongsServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //auth check
         User user = (User) req.getSession().getAttribute("user");
-        if(req.getSession().getAttribute("user")==null) {
+        if (req.getSession().getAttribute("user") == null) {
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
@@ -99,21 +105,21 @@ public class SongsServlet extends HttpServlet {
         String existing_str = req.getParameter("existing");
         boolean existing;
         existing = Boolean.parseBoolean(existing_str);
-        if(!existing && (song.getSize()==0 || s_title == null || s_title.equals("") ||
-                a_name==null || a_name.equals("") || ar_name==null || ar_name.equals("") ||
-                a_date_str.equals("") || cover.getSize()==0 || s_genre==null || s_genre.equals("none"))){
+        if (!existing && (song.getSize() == 0 || s_title == null || s_title.equals("") ||
+                a_name == null || a_name.equals("") || ar_name == null || ar_name.equals("") ||
+                a_date_str.equals("") || cover.getSize() == 0 || s_genre == null || s_genre.equals("none"))) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("fill every field");
             return;
         }
-        if(existing && (song.getSize()==0 || s_title == null || s_title.equals("") || s_genre==null || s_genre.equals("none"))){
+        if (existing && (song.getSize() == 0 || s_title == null || s_title.equals("") || s_genre == null || s_genre.equals("none"))) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("fill every field");
             return;
         }
         int a_ID = -1;
         Date a_date = null;
-        if(!existing){
+        if (!existing) {
             try {
                 a_date = new SimpleDateFormat("yyyy-dd-MM").parse(a_date_str);
             } catch (ParseException e) {
@@ -122,14 +128,14 @@ public class SongsServlet extends HttpServlet {
                 return;
             }
         } else {
-            if(a_ID_str==null){
+            if (a_ID_str == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write("no album set");
                 return;
             }
             try {
                 a_ID = Integer.parseInt(a_ID_str);
-            }catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write("albumID is not an ID");
                 return;
@@ -138,12 +144,12 @@ public class SongsServlet extends HttpServlet {
         GenreEnum genre;
         try {
             genre = GenreEnum.valueOf(s_genre.toUpperCase());
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("invalid genre");
             return;
         }
-        if(!song.getContentType().startsWith("audio/") || (cover!=null && cover.getSize()!=0 && !cover.getContentType().startsWith("image/"))){
+        if (!song.getContentType().startsWith("audio/") || (cover != null && cover.getSize() != 0 && !cover.getContentType().startsWith("image/"))) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("invalid file format");
             return;
@@ -153,18 +159,18 @@ public class SongsServlet extends HttpServlet {
         Album album = null;
         Artist artist;
         ArtistDAO artistDAO = new ArtistDAO(connection);
-        AlbumDAO albumDAO = new AlbumDAO(connection,filesDirectory);
-        SongDAO songDAO = new SongDAO(connection,filesDirectory);
+        AlbumDAO albumDAO = new AlbumDAO(connection, filesDirectory);
+        SongDAO songDAO = new SongDAO(connection, filesDirectory);
         try {
-            if(!existing) {
-                artist = artistDAO.addArtist(user.getUsername(),ar_name);
+            if (!existing) {
+                artist = artistDAO.addArtist(user.getUsername(), ar_name);
                 album = albumDAO.addAlbum(a_name, artist, a_date, cover, user.getUsername());
             } else {
-                album = albumDAO.getAlbum(user.getUsername(),a_ID);
+                album = albumDAO.getAlbum(user.getUsername(), a_ID);
             }
-            songDAO.addSong(user.getUsername(), s_title,genre, song, album);
+            songDAO.addSong(user.getUsername(), s_title, genre, song, album);
             connection.commit();
-        } catch (InvalidParameterException e){
+        } catch (InvalidParameterException e) {
             try {
                 connection.rollback();
             } catch (SQLException ex) {
@@ -173,16 +179,16 @@ public class SongsServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("album doesn't exists");
             return;
-        } catch (SQLException e){
+        } catch (SQLException e) {
             try {
                 connection.rollback();
                 //cover deletion when song query or song file save fails
-                albumDAO.deleteAlbumCover(user.getUsername(),album);
+                albumDAO.deleteAlbumCover(user.getUsername(), album);
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("server failed");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
             return;
         }
         // success
