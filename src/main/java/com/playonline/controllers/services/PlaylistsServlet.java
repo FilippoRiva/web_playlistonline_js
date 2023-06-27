@@ -107,7 +107,8 @@ public class PlaylistsServlet extends HttpServlet {
                 }
             }
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal server error");
         }
     }
 }

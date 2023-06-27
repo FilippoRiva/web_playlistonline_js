@@ -19,6 +19,7 @@ import java.util.List;
 @WebServlet("/artists")
 public class ArtistsServlet extends HttpServlet {
     private Connection connection;
+
     @Override
     public void init() throws ServletException {
         this.connection = MySQLConnections.getConnection(getServletContext());
@@ -27,7 +28,8 @@ public class ArtistsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User user = (User) req.getSession().getAttribute("user");
-        if(user==null){
+        if (user == null) {
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("/PlaylistOnlineJS/login");
             return;
         }
@@ -36,6 +38,7 @@ public class ArtistsServlet extends HttpServlet {
             artists = new PlaylistDAO(connection).getArtists(user.getUsername());
         } catch (SQLException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().println("Internal server error");
             return;
         }
         Gson gson = new Gson();
