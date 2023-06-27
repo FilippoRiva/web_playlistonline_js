@@ -20,6 +20,7 @@ import java.util.List;
 public class UserPlaylistsServlet extends HttpServlet {
 
     private Connection connection;
+
     @Override
     public void init() throws ServletException {
         this.connection = MySQLConnections.getConnection(getServletContext());
@@ -30,7 +31,7 @@ public class UserPlaylistsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
-        if(user == null) {
+        if (user == null) {
             resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("/PlaylistOnlineJS/login");
             return;
@@ -45,6 +46,6 @@ public class UserPlaylistsServlet extends HttpServlet {
         //returning playlists
         Gson gson = new Gson();
         resp.setContentType("application/json");
-        resp.getWriter().print(gson.toJson(playlists,playlists.getClass()));
+        resp.getWriter().print(gson.toJson(playlists, playlists.getClass()));
     }
 }

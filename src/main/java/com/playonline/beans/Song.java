@@ -5,6 +5,7 @@ public class Song {
     private Album album;
     private Genre genre;
     private int id;
+
     public String getTitle() {
         return title;
     }

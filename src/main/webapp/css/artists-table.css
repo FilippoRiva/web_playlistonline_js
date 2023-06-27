@@ -15,10 +15,11 @@ label, span {
     display: inline-block;
 }
 
-.checkbox-container label span:hover{
+.checkbox-container label span:hover {
     background-color: var(--color-triadic2);
 }
-input:checked, input:checked + span{
+
+input:checked, input:checked + span {
     background-color: var(--color-complementary);
 }
 
@@ -33,20 +34,23 @@ input:checked, input:checked + span{
     margin-bottom: 10px;
 }
 
-tr:nth-child(even) .artist-name{
+tr:nth-child(even) .artist-name {
     background-color: var(--color-complementary);
 }
-tr:nth-child(odd) .artist-name{
+
+tr:nth-child(odd) .artist-name {
     background-color: var(--color-triadic2);
 }
-td table:nth-child(even) tr .album-title{
+
+td table:nth-child(even) tr .album-title {
     background-color: var(--color-triadic1);
 }
-td table:nth-child(odd) tr .album-title{
+
+td table:nth-child(odd) tr .album-title {
     background-color: var(--color-primary);
 }
 
-input[type=checkbox]{
+input[type=checkbox] {
     display: none;
 }
 

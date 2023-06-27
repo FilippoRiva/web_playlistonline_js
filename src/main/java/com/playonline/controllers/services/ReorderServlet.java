@@ -22,6 +22,7 @@ import java.util.List;
 public class ReorderServlet extends HttpServlet {
 
     private Connection connection;
+
     @Override
     public void init() throws ServletException {
         try {
@@ -31,11 +32,12 @@ public class ReorderServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
-        if(user==null){
+        if (user == null) {
             resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
@@ -46,17 +48,18 @@ public class ReorderServlet extends HttpServlet {
         Gson gson = new Gson();
         int id;
         List<Integer> orderedList;
-        try{
-            List<Song> songList = gson.fromJson(json,new TypeToken<List<Song>>() {}.getType());
+        try {
+            List<Song> songList = gson.fromJson(json, new TypeToken<List<Song>>() {
+            }.getType());
             orderedList = songList.stream().map(Song::getId).toList();
-        } catch (Exception e){
+        } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("Corrupted Song List");
             return;
         }
-        try{
+        try {
             id = Integer.parseInt(id_str);
-        } catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("Invalid playlist ID");
             return;
@@ -64,8 +67,8 @@ public class ReorderServlet extends HttpServlet {
         List<Integer> actualIds;
         PlaylistDAO playlistDAO = new PlaylistDAO(connection);
         try {
-            actualIds = playlistDAO.getPlaylistIds(id,user.getUsername());
-            if(actualIds==null){
+            actualIds = playlistDAO.getPlaylistIds(id, user.getUsername());
+            if (actualIds == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write("Invalid playlist-user couple");
                 return;
@@ -76,23 +79,23 @@ public class ReorderServlet extends HttpServlet {
             return;
         }
         //checking orderedList content
-        if(orderedList.size()!=actualIds.size()){
+        if (orderedList.size() != actualIds.size()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("IDs are not valid");
             return;
         }
         HashSet<Integer> map = new HashSet<>(actualIds);
-        for(int songId : orderedList){
-            if(!map.contains(songId)) {
+        for (int songId : orderedList) {
+            if (!map.contains(songId)) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().write("ID is not valid : "+songId);
+                resp.getWriter().write("ID is not valid : " + songId);
                 return;
             }
         }
 
         try {
-            for(int i = 0; i < orderedList.size(); i++) {
-                    playlistDAO.updatePosition(id,orderedList.get(i),i);
+            for (int i = 0; i < orderedList.size(); i++) {
+                playlistDAO.updatePosition(id, orderedList.get(i), i);
             }
             connection.commit();
         } catch (SQLException e) {

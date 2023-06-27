@@ -21,10 +21,11 @@ import java.util.Map;
 @MultipartConfig
 public class PlaylistsServlet extends HttpServlet {
     Connection connection;
+
     @Override
-    public void init(){
+    public void init() {
         this.connection = MySQLConnections.getConnection(getServletContext());
-        try{
+        try {
             this.connection.setAutoCommit(false);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -57,7 +58,7 @@ public class PlaylistsServlet extends HttpServlet {
         Playlist playlist;
         try {
             playlist = new PlaylistDAO(connection).getPlaylist(p_ID, user.getUsername());
-            if(playlist==null){
+            if (playlist == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write("Invalid playlist-username couple");
                 return;
@@ -70,7 +71,7 @@ public class PlaylistsServlet extends HttpServlet {
 
         Gson gson = new Gson();
         resp.setContentType("application/json");
-        resp.getWriter().write(gson.toJson(playlist,playlist.getClass()));
+        resp.getWriter().write(gson.toJson(playlist, playlist.getClass()));
     }
 
     // add songs to a playlist
@@ -78,42 +79,43 @@ public class PlaylistsServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
-        if(user == null){
+        if (user == null) {
             resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
         // input parsing
-        Map<String,String[]> parameters = req.getParameterMap();
+        Map<String, String[]> parameters = req.getParameterMap();
         String playlistID = req.getParameter("p_ID");
         int p_ID;
-        try{
+        try {
             p_ID = Integer.parseInt(playlistID);
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("Internal server error");
             return;
         }
-        if(!parameters.containsKey("s_ID")){
+        if (!parameters.containsKey("s_ID")) {
             return;
         }
         // database update
         String[] songIDs = parameters.get("s_ID");
         try {
             PlaylistDAO playlistDAO = new PlaylistDAO(connection);
-            SongDAO songDAO = new SongDAO(connection,"");
+            SongDAO songDAO = new SongDAO(connection, "");
             for (String s_ID : songIDs) {
                 try {
                     int id = Integer.parseInt(s_ID);
-                    if(songDAO.isOwner(user.getUsername(),id))playlistDAO.addSongToPlaylist(user.getUsername(),p_ID, id);
+                    if (songDAO.isOwner(user.getUsername(), id))
+                        playlistDAO.addSongToPlaylist(user.getUsername(), p_ID, id);
                 } catch (NumberFormatException ignored) { //ignoring non parsable IDs
                 }
             }
             connection.commit();
         } catch (SQLException e) {
-            try{
+            try {
                 connection.rollback();
-            } catch (SQLException ex){
+            } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

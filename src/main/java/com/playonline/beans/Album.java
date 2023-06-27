@@ -9,6 +9,7 @@ public class Album {
     private Artist artist;
     private Date date;
     private List<Song> songs;
+
     public int getId() {
         return id;
     }
