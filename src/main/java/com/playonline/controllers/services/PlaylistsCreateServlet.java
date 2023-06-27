@@ -5,8 +5,6 @@ import com.playonline.dao.PlaylistDAO;
 import com.playonline.dao.SongDAO;
 import com.playonline.utils.MySQLConnections;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,10 +19,8 @@ import java.util.Map;
 @MultipartConfig
 public class PlaylistsCreateServlet extends HttpServlet {
     Connection connection;
-    RequestDispatcher homeDispatcher;
     @Override
     public void init(){
-        homeDispatcher = getServletContext().getRequestDispatcher("/home");
         this.connection = MySQLConnections.getConnection(getServletContext());
         try {
             connection.setAutoCommit(false);
@@ -34,10 +30,11 @@ public class PlaylistsCreateServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // auth check
         User user = (User)req.getSession().getAttribute("user");
         if(user==null){
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
@@ -45,7 +42,8 @@ public class PlaylistsCreateServlet extends HttpServlet {
         String title = req.getParameter("p_title");
         String username = user.getUsername();
         if(title==null || title.equals("")){
-            homeDispatcher.forward(req,resp);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Missing playlist title");
             return;
         }
         // database update
@@ -72,6 +70,5 @@ public class PlaylistsCreateServlet extends HttpServlet {
                 throw new RuntimeException(ex);
             }
         }
-        resp.setStatus(HttpServletResponse.SC_OK);
     }
 }

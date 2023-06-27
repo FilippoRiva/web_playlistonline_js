@@ -24,6 +24,11 @@ public class PlaylistsServlet extends HttpServlet {
     @Override
     public void init(){
         this.connection = MySQLConnections.getConnection(getServletContext());
+        try{
+            this.connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     //returns the requested playlist's songs infos
@@ -32,6 +37,7 @@ public class PlaylistsServlet extends HttpServlet {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
         if (user == null) {
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
@@ -52,11 +58,13 @@ public class PlaylistsServlet extends HttpServlet {
         try {
             playlist = new PlaylistDAO(connection).getPlaylist(p_ID, user.getUsername());
             if(playlist==null){
-                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("Invalid playlist-username couple");
                 return;
             }
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
             return;
         }
 
@@ -71,6 +79,7 @@ public class PlaylistsServlet extends HttpServlet {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
         if(user == null){
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
@@ -81,7 +90,8 @@ public class PlaylistsServlet extends HttpServlet {
         try{
             p_ID = Integer.parseInt(playlistID);
         } catch (NumberFormatException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Internal server error");
             return;
         }
         if(!parameters.containsKey("s_ID")){
@@ -99,8 +109,15 @@ public class PlaylistsServlet extends HttpServlet {
                 } catch (NumberFormatException ignored) { //ignoring non parsable IDs
                 }
             }
+            connection.commit();
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            try{
+                connection.rollback();
+            } catch (SQLException ex){
+                throw new RuntimeException(ex);
+            }
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal server error");
         }
     }
 }

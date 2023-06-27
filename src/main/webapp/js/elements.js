@@ -7,10 +7,10 @@ function PlaylistList(table,rowTemplate){
     }
     this.refresh = function(){
         let self = this;
-        makeCall("get","/PlaylistOnlineJS/user-playlists",null,(res)=>{
-            if(res.status===200){
+        makeCall("get","/PlaylistOnlineJS/user-playlists",null,(req)=>{
+            if(req.status===200){
                 //successful
-                let playlists = JSON.parse(res.responseText);
+                let playlists = JSON.parse(req.responseText);
                 removeChildNodes(table);
 
                 //filling new playlist list
@@ -40,9 +40,9 @@ function PlaylistList(table,rowTemplate){
                 }
 
                 //show
-                self.show(playlists);
+                self.show();
             } else {
-                messageOverlay.showMessage("Unable to retrieve playlists from server")
+                messageOverlay.showMessage(req.responseText)
             }
         })
     }
@@ -200,7 +200,7 @@ function SongForm(form){
                     this.show(this.currentState, selectedID);
                 }
             } else {
-                messageOverlay.showMessage("Unable to retrieve user albums from server");
+                messageOverlay.showMessage(req.responseText);
             }
         });
     }
@@ -237,7 +237,7 @@ function RemainingSongs(form,templateArtist,templateAlbum,templateCheckbox){
                 homePage.playlistList.refresh();
                 homePage.remainingSongs.refresh();
             } else {
-                messageOverlay.showMessage("Unable to create playlist");
+                messageOverlay.showMessage(req.responseText);
             }
         });
     }
@@ -257,7 +257,7 @@ function RemainingSongs(form,templateArtist,templateAlbum,templateCheckbox){
                     if(req.status===200){
                         playlistPage.refresh(playlistName,playlistID);
                     } else {
-                        messageOverlay.showMessage("Unable to create playlist");
+                        messageOverlay.showMessage(req.responseText);
                     }
                 });
             })
@@ -268,7 +268,7 @@ function RemainingSongs(form,templateArtist,templateAlbum,templateCheckbox){
                     this.titleRow.hidden = true;
                     this.show();
                 } else {
-                    messageOverlay.showMessage("Unable to retrieve remaining artists from server");
+                    messageOverlay.showMessage(req.responseText);
                 }
             })
         } else {
@@ -282,7 +282,7 @@ function RemainingSongs(form,templateArtist,templateAlbum,templateCheckbox){
                     this.titleRow.hidden = false;
                     this.show();
                 } else {
-                    messageOverlay.showMessage("Unable to retrieve artists from server");
+                    messageOverlay.showMessage(req.responseText);
                 }
             });
         }
@@ -358,7 +358,7 @@ function SongNavigator(songNavigation,templateSongNavInfo) {
                 }
                 this.changePage(this.currentPage);
             } else {
-                messageOverlay.showMessage("Unable to retrieve playlist songs from server");
+                messageOverlay.showMessage(req.responseText);
             }
         });
     }
@@ -441,9 +441,13 @@ function SongPlayer(songContainer) {
                 this.img.appendChild(imgSrc);
                 this.show();
             } else {
-                messageOverlay.showMessage("Unable to retrieve song info");
+                messageOverlay.showMessage(req.responseText);
             }
         });
+    }
+    this.stop = function(){
+        this.audio.pause();
+        this.audio.currentTime = 0;
     }
 }
 
@@ -466,7 +470,7 @@ function DragAndDropTable(table,orderTableRowTemplate){
                 this.updateList(playlistID);
                 this.show();
             } else {
-                messageOverlay.showMessage("Unable to get playlist info");
+                messageOverlay.showMessage(req.responseText);
             }
         });
     }
@@ -488,9 +492,6 @@ function DragAndDropTable(table,orderTableRowTemplate){
             artist.textContent = song.album.artist.name;
             album.textContent = song.album.name;
             title.textContent = song.title;
-            position.ondragstart = function() {
-                return false;
-            }
             row.firstElementChild.addEventListener("dragstart",()=>{
                 this.movingRowIndex = i-1;
             });
@@ -511,7 +512,7 @@ function DragAndDropTable(table,orderTableRowTemplate){
                     orderPage.hide();
                     homePage.show();
                 } else {
-                    messageOverlay.showMessage("Unable to reorder playlist")
+                    messageOverlay.showMessage(req.responseText)
                 }
             },JSON.stringify(reduceSongList(this.playlistSongs)));
         });

@@ -36,7 +36,8 @@ public class AlbumsServlet extends HttpServlet {
         try {
             albums = new AlbumDAO(connection,"").getUserAlbums(user.getUsername());
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().println("Internal server error");
             return;
         }
         Gson gson = new Gson();

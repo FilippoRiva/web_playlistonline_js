@@ -28,6 +28,7 @@ public class RemainingArtistsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User user = (User) req.getSession().getAttribute("user");
         if(user==null){
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("/PlaylistOnlineJS/login");
             return;
         }
@@ -44,6 +45,7 @@ public class RemainingArtistsServlet extends HttpServlet {
         try {
             remainingArtists = new PlaylistDAO(connection).getRemainingArtists(p_ID,user.getUsername());
         } catch (SQLException e) {
+            resp.getWriter().write("Internal server error");
             throw new RuntimeException(e);
         }
         Gson gson = new Gson();

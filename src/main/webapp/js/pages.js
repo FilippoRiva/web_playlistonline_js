@@ -104,8 +104,8 @@ function PlaylistPage(songNavigator,remainingSongs) {
 
 }
 
-function SongPage(songContainer) {
-    this.songContainer = songContainer;
+function SongPage(songPlayer) {
+    this.songContainer = songPlayer;
     this.show = function(){
         topRightButton.hidden = false;
     }
@@ -113,7 +113,7 @@ function SongPage(songContainer) {
         this.songContainer.hide();
         topRightButton.hidden = true;
 
-        songContainer.hide()
+        songPlayer.hide()
     }
     this.refresh = function(songId) {
         topRightButton = removeListeners(topRightButton);
@@ -122,6 +122,7 @@ function SongPage(songContainer) {
             evt.preventDefault();
             songPage.hide();
             playlistPage.show();
+            songPlayer.stop();
         })
         this.songContainer.refresh(songId);
         this.show();

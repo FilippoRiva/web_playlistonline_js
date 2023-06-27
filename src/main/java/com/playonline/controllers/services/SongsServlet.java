@@ -48,6 +48,7 @@ public class SongsServlet extends HttpServlet {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
         if(user==null){
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
@@ -57,7 +58,8 @@ public class SongsServlet extends HttpServlet {
         try{
             id = Integer.parseInt(id_str);
         } catch (NumberFormatException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Invalid Playlist ID");
             return;
         }
 
@@ -66,11 +68,13 @@ public class SongsServlet extends HttpServlet {
         try {
             song = new SongDAO(connection,filesDirectory).getSongByID(id, user.getUsername());
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
             return;
         }
         if(song==null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Invalid username-song couple");
             return;
         }
         Gson gson = new Gson();
@@ -84,6 +88,7 @@ public class SongsServlet extends HttpServlet {
         //auth check
         User user = (User) req.getSession().getAttribute("user");
         if(req.getSession().getAttribute("user")==null) {
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
@@ -181,8 +186,8 @@ public class SongsServlet extends HttpServlet {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("server failed");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
             return;
         }
         // success

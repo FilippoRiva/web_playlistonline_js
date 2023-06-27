@@ -44,7 +44,8 @@ public class UserLogin extends HttpServlet{
                     try {
                         user = new UserDAO(connection).checkCookie(c.getValue());
                     } catch (SQLException e) {
-                        resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        resp.getWriter().write("Internal Server Error");
                         return;
                     }
                     if(user == null) break;
@@ -59,19 +60,21 @@ public class UserLogin extends HttpServlet{
         String username = req.getParameter("username");
         String password = req.getParameter("password");
         if(username==null || password==null){
-            resp.setStatus(401);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("please fill every field");
             return;
         }
         // validity check
-        User user = null;
+        User user;
         try {
             user = new UserDAO(connection).checkCredentials(username,password);
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
+            return;
         }
         if(user==null){
-            resp.setStatus(401);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("wrong credentials");
             return;
         }

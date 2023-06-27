@@ -24,6 +24,7 @@ public class CoverFile extends HttpServlet {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
         if(user==null){
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
@@ -33,21 +34,24 @@ public class CoverFile extends HttpServlet {
         int artistID;
         int albumID;
         if(a_ID_str==null || ar_ID_str==null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("No cover or artist IDs");
             return;
         }
         try{
             artistID = Integer.parseInt(ar_ID_str);
             albumID = Integer.parseInt(a_ID_str);
         } catch (NumberFormatException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Cover or Artist ID are not valid");
             return;
         }
         // file check
         String path = folder+user.getUsername()+"/"+artistID+"/"+albumID+"/cover";
         File f = new File(path);
         if(!f.exists()){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("The requested cover doesn't exists");
             return;
         }
         // response

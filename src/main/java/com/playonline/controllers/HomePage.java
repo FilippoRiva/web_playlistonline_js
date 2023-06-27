@@ -19,6 +19,7 @@ public class HomePage extends HttpServlet {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
         if(user == null) {
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("/PlaylistOnlineJS/login");
             return;
         }

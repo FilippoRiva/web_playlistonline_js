@@ -14,7 +14,7 @@ public class PlaylistDAO {
     }
 
     public List<Playlist> getUserPlaylists(String username) throws SQLException{
-        String getUserPlaylistsQuery = "SELECT p_title,p_id,p_date FROM playlist WHERE p_owner=? ORDER BY p_date";
+        String getUserPlaylistsQuery = "SELECT p_title,p_id,p_date FROM playlist WHERE p_owner=? ORDER BY p_date DESC";
         try(PreparedStatement getUserPlaylistsStatement = connection.prepareStatement(getUserPlaylistsQuery)){
             List<Playlist> result = new ArrayList<>();
             ResultSet queryResult;
@@ -206,16 +206,18 @@ public class PlaylistDAO {
     }
 
     //used for checking playlist ordering requests
-    public List<Integer> getPlaylistIds(int playlistID) throws SQLException {
+    public List<Integer> getPlaylistIds(int playlistID,String username) throws SQLException {
         String getPlaylistIDs =
-                "SELECT s_ID from playlistsong WHERE p_ID = ?";
+                "SELECT s_ID from playlistsong JOIN playlist ON playlist.p_ID = playlistsong.p_ID WHERE playlistsong.p_ID = ? and p_owner=?";
         try(PreparedStatement getPlaylistIdsStatement = connection.prepareStatement(getPlaylistIDs)){
             List<Integer> result = new ArrayList<>();
             getPlaylistIdsStatement.setInt(1,playlistID);
+            getPlaylistIdsStatement.setString(2,username);
             ResultSet queryResult = getPlaylistIdsStatement.executeQuery();
-            while(queryResult.next()){
+            if(!queryResult.next()) return null;
+            do{
                 result.add(queryResult.getInt(1));
-            }
+            }while((queryResult.next()));
             return result;
         }
     }

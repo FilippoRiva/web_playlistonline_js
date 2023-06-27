@@ -3,6 +3,7 @@ package com.playonline.controllers.services;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.playonline.beans.Song;
+import com.playonline.beans.User;
 import com.playonline.dao.PlaylistDAO;
 import com.playonline.utils.MySQLConnections;
 
@@ -32,6 +33,14 @@ public class ReorderServlet extends HttpServlet {
     }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // auth check
+        User user = (User) req.getSession().getAttribute("user");
+        if(user==null){
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+            resp.sendRedirect("login");
+            return;
+        }
+
         String json = req.getReader().readLine();
         String id_str = req.getParameter("id");
         Gson gson = new Gson();
@@ -41,32 +50,42 @@ public class ReorderServlet extends HttpServlet {
             List<Song> songList = gson.fromJson(json,new TypeToken<List<Song>>() {}.getType());
             orderedList = songList.stream().map(Song::getId).toList();
         } catch (Exception e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Corrupted Song List");
             return;
         }
         try{
             id = Integer.parseInt(id_str);
         } catch(NumberFormatException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Invalid playlist ID");
             return;
         }
         List<Integer> actualIds;
         PlaylistDAO playlistDAO = new PlaylistDAO(connection);
         try {
-            actualIds = playlistDAO.getPlaylistIds(id);
+            actualIds = playlistDAO.getPlaylistIds(id,user.getUsername());
+            if(actualIds==null){
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("Invalid playlist-user couple");
+                return;
+            }
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
             return;
         }
         //checking orderedList content
         if(orderedList.size()!=actualIds.size()){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("IDs are not valid");
             return;
         }
         HashSet<Integer> map = new HashSet<>(actualIds);
         for(int songId : orderedList){
             if(!map.contains(songId)) {
-                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("ID is not valid : "+songId);
                 return;
             }
         }
@@ -82,7 +101,8 @@ public class ReorderServlet extends HttpServlet {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
         }
     }
 }

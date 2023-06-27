@@ -31,17 +31,17 @@ public class UserRegistration extends HttpServlet {
         PrintWriter out = resp.getWriter();
         // input parsing
         if(username==null || username.length()<1 || username.length()>30) {
-            resp.setStatus(401);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             out.print("invalid username");
             return;
         }
         if(password==null || password.length()<5 || password.length()>100){
-            resp.setStatus(401);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             out.print("invalid password");
             return;
         }
         if(passwordCopy==null || password.compareTo(passwordCopy)!=0){
-            resp.setStatus(401);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             out.print("passwords do not match");
             return;
         }
@@ -50,7 +50,7 @@ public class UserRegistration extends HttpServlet {
         try {
             UserDAO userDAO = new UserDAO(connection);
             if(!userDAO.isUsernameAvailable(username)){
-                resp.setStatus(401);
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.print("username not available");
                 return;
             } else {
@@ -58,7 +58,8 @@ public class UserRegistration extends HttpServlet {
                 userDAO.addUser(username,password,cookieVal);
             }
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
             return;
         }
         // auth cookie
@@ -66,6 +67,7 @@ public class UserRegistration extends HttpServlet {
         newCookie.setMaxAge(60*60*24*365);
         resp.addCookie(newCookie);
         resp.getWriter().write(username);
+        resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
         resp.sendRedirect("/PlaylistOnlineJS/login");
     }
 

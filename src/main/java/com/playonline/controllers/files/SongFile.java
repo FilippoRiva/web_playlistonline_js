@@ -25,7 +25,7 @@ public class SongFile extends HttpServlet {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
         if(user==null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         // input parsing
@@ -36,7 +36,7 @@ public class SongFile extends HttpServlet {
         int artistID;
         int albumID;
         if(s_ID_str==null || a_ID_str==null || ar_ID_str==null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         try{
@@ -44,14 +44,14 @@ public class SongFile extends HttpServlet {
             artistID = Integer.parseInt(ar_ID_str);
             albumID = Integer.parseInt(a_ID_str);
         } catch (NumberFormatException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         // file check
         String path = folder+user.getUsername()+"/"+artistID+"/"+albumID+"/"+songID;
         File f = new File(path);
         if(!f.exists()){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         // response

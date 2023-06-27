@@ -21,6 +21,7 @@ public class UserLogout extends HttpServlet {
         cookie.setMaxAge(0);
         resp.addCookie(cookie);
         req.getSession(true).setAttribute("user",null);
+        resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
         resp.sendRedirect("/PlaylistOnlineJS/login");
     }
 }
