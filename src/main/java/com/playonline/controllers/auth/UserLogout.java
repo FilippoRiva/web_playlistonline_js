@@ -11,16 +11,17 @@ import java.io.IOException;
 public class UserLogout extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        doPost(req,resp);
+        doPost(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // removes auth cookie and user session attribute
-        Cookie cookie = new Cookie("LOGIN_INFO","0");
+        Cookie cookie = new Cookie("LOGIN_INFO", "0");
         cookie.setMaxAge(0);
         resp.addCookie(cookie);
-        req.getSession(true).setAttribute("user",null);
+        req.getSession(true).setAttribute("user", null);
+        resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
         resp.sendRedirect("/PlaylistOnlineJS/login");
     }
 }

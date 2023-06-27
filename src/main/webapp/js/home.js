@@ -26,19 +26,19 @@ window.onload = function () {
     let messageDiv = window.document.getElementById("messageOverlay")
 
     //My Elements
-    let playlistList = new PlaylistList(playlistTable,templatePlaylistRow);
+    let playlistList = new PlaylistList(playlistTable, templatePlaylistRow);
     let songForm = new SongForm(songFormElem);
-    let remainingSongs = new RemainingSongs(remainingSongsForm,templateCustomTableArtist,
-        templateCustomTableAlbum,templateCustomTableCheckbox);
-    let songNavigation = new SongNavigator(songNavigationElem,templateSongNavInfo);
+    let remainingSongs = new RemainingSongs(remainingSongsForm, templateCustomTableArtist,
+        templateCustomTableAlbum, templateCustomTableCheckbox);
+    let songNavigation = new SongNavigator(songNavigationElem, templateSongNavInfo);
     let songPlayer = new SongPlayer(songContainer);
-    let dragAndDropTable = new DragAndDropTable(reorderTable,reorderTableRowTemplate);
+    let dragAndDropTable = new DragAndDropTable(reorderTable, reorderTableRowTemplate);
 
 
     messageOverlay = new MessageOverlay(messageDiv)
-    homePage = new HomePage(playlistList,songForm,remainingSongs);
+    homePage = new HomePage(playlistList, songForm, remainingSongs);
     homePage.refresh();
-    playlistPage = new PlaylistPage(songNavigation,remainingSongs)
+    playlistPage = new PlaylistPage(songNavigation, remainingSongs)
     songPage = new SongPage(songPlayer)
     orderPage = new OrderPage(dragAndDropTable);
 }

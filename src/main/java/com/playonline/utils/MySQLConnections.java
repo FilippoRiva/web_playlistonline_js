@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MySQLConnections {
-    public static Connection getConnection(ServletContext context){
+    public static Connection getConnection(ServletContext context) {
         String driver = context.getInitParameter("dbDriver");
         String url = context.getInitParameter("dbUrl");
         String user = context.getInitParameter("dbUser");
@@ -20,9 +20,9 @@ public class MySQLConnections {
         }
         Connection connection;
         try {
-            connection = DriverManager.getConnection(url,user,password);
+            connection = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
-            throw new RuntimeException("Unable to connect to "+ url);
+            throw new RuntimeException("Unable to connect to " + url);
         }
         return connection;
     }

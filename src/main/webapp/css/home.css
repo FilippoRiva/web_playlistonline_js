@@ -3,7 +3,7 @@
 @import url(song.css);
 @import url(playlist.css);
 
-.playlist-table , .song-form, .remaining-songs-form{
+.playlist-table, .song-form, .remaining-songs-form {
     width: 70%;
     margin: auto;
     border: 1px solid white;
@@ -11,12 +11,12 @@
     padding: 20px;
 }
 
-input[type=text], input[type=select],select, input[type=date] {
+input[type=text], input[type=select], select, input[type=date] {
     width: 80%;
 }
 
 
-input[type=file], input[type=checkbox]{
+input[type=file], input[type=checkbox] {
     display: none;
 }
 
@@ -34,7 +34,7 @@ table {
     cursor: grab;
 }
 
-.reorder-row:-moz-drag-over{
+.reorder-row:-moz-drag-over {
     background: var(--color-primary);
 }
 

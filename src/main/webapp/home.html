@@ -10,217 +10,231 @@
     <title>PlaylistOnline</title>
 </head>
 <body>
-    <a id="top-right-button" href="" style="position:fixed; top: 10px; right: 10px">
-        <div class="button">
+<a id="top-right-button" href="" style="position:fixed; top: 10px; right: 10px">
+    <div class="button">
+    </div>
+</a>
+
+<div class="messageOverlay" hidden id="messageOverlay">
+    Exception
+</div>
+
+<div class="song-container" id="song-container">
+    <div class="album-cover">
+    </div>
+    <div class="song-block">
+        <div class="player-song-info">
+            <div class="song-title"> song</div>
+            <div class="artist-album"> artists</div>
+            <div class="releaseDate-genre">genre</div>
+        </div>
+        <div class="audio-player">
+            <audio controls id="audio">
+                No support
+            </audio>
+        </div>
+    </div>
+</div>
+
+<h1 id="firstH1"></h1>
+
+<table hidden id="playlist-table" class="playlist-table">
+</table>
+
+<template id="temp-playlistRow">
+    <tr class="row">
+        <td><a class="left"></a></td>
+        <td><span class="right"></span></td>
+        <td><a class="reorderLink">reorder</a></td>
+    </tr>
+</template>
+
+<div class="song-navigation" id="song-navigation" hidden>
+    <div class="back">
+        &lt
+    </div>
+    <div class="current-songs">
+    </div>
+    <div class="next">
+        &gt
+    </div>
+</div>
+
+<template id="song-nav-info">
+    <a>
+        <div class="song-info">
+            <div class="album-cover">
+                <img src="#">
+            </div>
+            <div class="song-title">
+                Canzone
+            </div>
+            <div class="artist-name">
+                Artista
+            </div>
         </div>
     </a>
+</template>
 
-    <div class="messageOverlay" id="messageOverlay">
-        Exception
-    </div>
+<table id="reorder-table" hidden>
+    <thead>
+    <tr>
+        <td>
+            Position
+        </td>
+        <td>
+            Artist
+        </td>
+        <td>
+            Album
+        </td>
+        <td>
+            Title
+        </td>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td>
+            <a id="#reorder-confirm">
+                <div class="button">
+                    Confirm
+                </div>
+            </a>
+        </td>
+    </tr>
+    </tfoot>
+</table>
 
-    <div class="song-container" id="song-container">
-        <div class="album-cover">
-        </div>
-        <div class="song-block">
-            <div class="song-info">
-                <div class="song-title"> song </div>
-                <div class="artist-album"> artists  </div>
-                <div class="releaseDate-genre">genre</div>
-            </div>
-            <div class="audio-player">
-                <audio controls id="audio">
-                    No support
-                </audio>
-            </div>
-        </div>
-    </div>
+<template id="reorder-table-row-template">
+    <tr draggable="true" class="reorder-row">
+        <td id="position">
+        </td>
+        <td id="artist">
+        </td>
+        <td id="album">
+        </td>
+        <td id="title">
+        </td>
+    </tr>
+</template>
 
-    <h1 id="firstH1"></h1>
+<h1 id="secondH1"></h1>
 
-    <table hidden id="playlist-table" class="playlist-table">
-    </table>
-
-    <template id="temp-playlistRow">
+<form hidden class="song-form" id="song-form" method="post" autocomplete="off" enctype="multipart/form-data">
+    <table>
         <tr class="row">
-            <td><a class="left"></a></td>
-            <td><span class="right"></span></td>
-            <td><a class="reorderLink">reorder</a></td>
+            <td><label class="left" for="s_title">Title</label></td>
+            <td><input class="right" type="text" id="s_title" name="s_title"></td>
         </tr>
-    </template>
-
-    <div class="song-navigation" id="song-navigation" hidden>
-        <div class="back">
-            &lt
-        </div>
-        <div class="current-songs">
-        </div>
-        <div class="next">
-            &gt
-        </div>
-    </div>
-
-    <template id="song-nav-info">
-        <a>
-            <div class="song-info" >
-                <div class="album-cover">
-                    <img src="#">
-                </div>
-                <div class="song-title">
-                    Canzone
-                </div>
-                <div class="artist-name">
-                    Artista
-                </div>
-            </div>
-        </a>
-    </template>
-
-    <table id="reorder-table" hidden>
-        <thead>
-        <tr>
+        <tr class="row">
+            <td><label class="left" for="s_genre">Genre</label></td>
             <td>
-                Position
-            </td>
-            <td>
-                Artist
-            </td>
-            <td>
-                Album
-            </td>
-            <td>
-                Title
+                <select class="right" id="s_genre" name="s_genre">
+                    <option value="none"></option>
+                    <option value="pop">Pop</option>
+                    <option value="rock">Rock</option>
+                    <option value="rap">Rap</option>
+                    <option value="edm">Edm</option>
+                    <option value="blues">Blues</option>
+                    <option value="soul">Soul</option>
+                    <option value="funk">Funk</option>
+                    <option value="jazz">Jazz</option>
+                    <option value="LoFi">Lo-Fi</option>
+                    <option value="indie">Indie</option>
+                    <option value="metal">Metal</option>
+                    <option value="classic">Classic</option>
+                    <option value="other">Other</option>
+                </select>
             </td>
         </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        <tfoot>
-        <tr>
+        <tr class="album-switch-container">
+            <td class="album-switch" id="toNewAlbum">
+                <button class="button" type="submit">New Album</button>
+            </td>
+            <td class="album-switch" id="toExistingAlbums">
+                <button class="button" type="submit">Existing Album</button>
+            </td>
+        </tr>
+        <tr class="row">
+            <td><label class="left" for="ar_name">Artist</label></td>
+            <td><input class="right" type="text" id="ar_name" name="ar_name"></td>
+        </tr>
+        <tr class="row">
+            <td><label class="left" for="a_name">Album</label>
+            <td><input class="right" type="text" id="a_name" name="a_name"></td>
+        </tr>
+        <tr class="row">
+            <td><label class="left" for="a_date">Release Date</label></td>
+            <td><input class="right" type="date" id="a_date" name="a_date"></td>
+        </tr>
+        <tr class="row">
+            <td><label class="left" for="a_cover">Cover</label></td>
+            <td><label class="button">Upload cover<input class="right" type="file"
+                                                         id="a_cover"
+                                                         name="a_cover"
+                                                         accept="image/*"></label></td>
+        </tr>
+        <tr class="row">
+            <td><label class="left" for="a_ID">Album</label></td>
+            <td><select class="right" id="a_ID" name="a_ID">
+            </select></td>
+        </tr>
+        <tr class="row">
+            <td><label class="left" for="s_file">Audio File</label></td>
+            <td><label class="button">Upload File<input class="right" type="file" id="s_file" name="s_file"
+                                                        accept="audio/*"></label></td>
+        </tr>
+        <tr class="row">
             <td>
-                <a id = "#reorder-confirm">
-                    <div class="button">
-                        Confirm
-                    </div>
-                </a>
-            </td>
-        </tr>
-        </tfoot>
-    </table>
-
-    <template id="reorder-table-row-template">
-        <tr draggable="true" class="reorder-row">
-            <td id="position">
-            </td>
-            <td id="artist">
-            </td>
-            <td id="album">
-            </td>
-            <td id="title">
-            </td>
-        </tr>
-    </template>
-
-    <h1 id="secondH1"></h1>
-
-    <form hidden class="song-form" id="song-form" method = "post" autocomplete="off"  enctype="multipart/form-data">
-        <table>
-            <tr class="row">
-                <td><label class="left" for="s_title" >Title</label></td>
-                <td><input class="right" type="text" id="s_title" name="s_title"></td>
-            </tr>
-            <tr class="row">
-                <td><label class="left" for="s_genre" >Genre</label></td>
-                <td>
-                    <select class="right" id="s_genre" name="s_genre">
-                        <option value="none"> </option>
-                        <option value="pop">Pop</option>
-                        <option value="rock">Rock</option>
-                        <option value="rap">Rap</option>
-                        <option value="edm">Edm</option>
-                        <option value="blues">Blues</option>
-                        <option value="soul">Soul</option>
-                        <option value="funk">Funk</option>
-                        <option value="jazz">Jazz</option>
-                        <option value="LoFi">Lo-Fi</option>
-                        <option value="indie">Indie</option>
-                        <option value="metal">Metal</option>
-                        <option value="classic">Classic</option>
-                        <option value="other">Other</option>
-                    </select>
-                </td>
-            </tr>
-            <tr class="album-switch-container">
-                <td class="album-switch" id="toNewAlbum">
-                    <button class="button" type="submit">New Album</button>
-                </td>
-                <td class="album-switch" id="toExistingAlbums">
-                    <button class="button" type="submit">Existing Album</button>
-                </td>
-            </tr>
-            <tr class="row">
-                <td><label class="left" for="ar_name">Artist</label></td>
-                <td><input class="right" type="text" id="ar_name" name="ar_name"></td>
-            </tr>
-            <tr class="row">
-                <td><label class="left" for="a_name">Album</label>
-                <td><input class="right" type="text" id="a_name" name="a_name"></td>
-            </tr>
-            <tr class="row">
-                <td><label class="left" for="a_date">Release Date</label></td>
-                <td><input class="right" type="date" id="a_date" name="a_date"></td>
-            </tr>
-            <tr class="row">
-                <td><label class="left" for="a_cover">Cover</label></td>
-                <td><label class="button">Upload cover<input class="right" type="file"
-                                                             id="a_cover"
-                                                             name="a_cover"
-                                                             accept="image/*"></label></td>
-            </tr>
-            <tr class="row">
-                <td><label class="left" for="a_ID">Album</label></td>
-                <td><select class="right" id="a_ID" name="a_ID">
-                </select></td>
-            </tr>
-            <tr class="row">
-                <td><label class="left" for="s_file">Audio File</label></td>
-                <td><label class="button">Upload File<input class="right" type="file" id="s_file" name="s_file"
-                                                            accept="audio/*"></label></td>
-            </tr>
-            <tr class="row">
-                <td>
                     <span class="left">
                         <button id="song-form-submit" class="button" type="submit">Add</button>
                     </span>
-                </td>
-                <td class="right" id="song-form-info-text"></td>
-            </tr>
-        </table>
-        <input type="text" name="existing" id="existing" hidden>
-    </form>
+            </td>
+            <td class="right" id="song-form-info-text"></td>
+        </tr>
+    </table>
+    <input type="text" name="existing" id="existing" hidden>
+</form>
 
-    <h1 id="thirdH1"></h1>
+<h1 id="thirdH1"></h1>
 
-    <form hidden class="remaining-songs-form" id="remaining-songs-form" method = "post" autocomplete="off">
-        <div class="row">
-            <label class="left" for="p_title" >Title:</label>
-            <input class="right" type="text" id="p_title" name="p_title"><br>
-        </div>
-        <table class="custom-table"></table>
-        <input type="text" id="p_ID" name="p_ID" hidden>
-        <input id="remaining-songs-submit" class="button" type="submit" value="Create">
-    </form>
+<form hidden class="remaining-songs-form" id="remaining-songs-form" method="post" autocomplete="off">
+    <div class="row">
+        <label class="left" for="p_title">Title:</label>
+        <input class="right" type="text" id="p_title" name="p_title"><br>
+    </div>
+    <table class="custom-table"></table>
+    <input type="text" id="p_ID" name="p_ID" hidden>
+    <input id="remaining-songs-submit" class="button" type="submit" value="Create">
+</form>
 
-    <template id="custom-table-artist-template">
-        <tr><td class="artist-name">artist name</td><td><table class="custom-table"></table></td></tr>
-    </template>
+<template id="custom-table-artist-template">
+    <tr>
+        <td class="artist-name">artist name</td>
+        <td>
+            <table class="custom-table"></table>
+        </td>
+    </tr>
+</template>
 
-    <template id="custom-table-album-template">
-        <tr><td class="album-title">album</td><td><table class="custom-table" ><tr><td class="checkbox-container"></td></tr></table></td></tr>
-    </template>
-    <template id="custom-table-checkbox">
-        <label><input type="checkbox" name="s_ID"><span class="song-title"></span></label>
-    </template>
+<template id="custom-table-album-template">
+    <tr>
+        <td class="album-title">album</td>
+        <td>
+            <table class="custom-table">
+                <tr>
+                    <td class="checkbox-container"></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</template>
+<template id="custom-table-checkbox">
+    <label><input type="checkbox" name="s_ID"><span class="song-title"></span></label>
+</template>
 
 </body>
 </html>

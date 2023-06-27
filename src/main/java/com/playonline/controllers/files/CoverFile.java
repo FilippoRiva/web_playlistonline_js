@@ -14,6 +14,7 @@ import java.io.OutputStream;
 @WebServlet("/cover")
 public class CoverFile extends HttpServlet {
     String folder;
+
     @Override
     public void init() {
         this.folder = getServletContext().getInitParameter("filesDirectory");
@@ -23,7 +24,8 @@ public class CoverFile extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
-        if(user==null){
+        if (user == null) {
+            resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             resp.sendRedirect("login");
             return;
         }
@@ -32,33 +34,36 @@ public class CoverFile extends HttpServlet {
         String a_ID_str = req.getParameter("aID");
         int artistID;
         int albumID;
-        if(a_ID_str==null || ar_ID_str==null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        if (a_ID_str == null || ar_ID_str == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("No cover or artist IDs");
             return;
         }
-        try{
+        try {
             artistID = Integer.parseInt(ar_ID_str);
             albumID = Integer.parseInt(a_ID_str);
-        } catch (NumberFormatException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Cover or Artist ID are not valid");
             return;
         }
         // file check
-        String path = folder+user.getUsername()+"/"+artistID+"/"+albumID+"/cover";
+        String path = folder + user.getUsername() + "/" + artistID + "/" + albumID + "/cover";
         File f = new File(path);
-        if(!f.exists()){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        if (!f.exists()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("The requested cover doesn't exists");
             return;
         }
         // response
         resp.setContentType(getServletContext().getMimeType(path));
-        resp.setContentLength((int)f.length());
-        try(FileInputStream input = new FileInputStream(f)){
+        resp.setContentLength((int) f.length());
+        try (FileInputStream input = new FileInputStream(f)) {
             OutputStream output = resp.getOutputStream();
             byte[] buffer = new byte[1024];
             int count;
-            while((count=input.read(buffer))>=0){
-                output.write(buffer,0,count);
+            while ((count = input.read(buffer)) >= 0) {
+                output.write(buffer, 0, count);
             }
         }
     }

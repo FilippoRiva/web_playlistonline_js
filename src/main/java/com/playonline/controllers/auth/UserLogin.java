@@ -18,15 +18,17 @@ import java.sql.*;
 
 @WebServlet("/login")
 @MultipartConfig
-public class UserLogin extends HttpServlet{
+public class UserLogin extends HttpServlet {
     private Htmls htmls;
     private Connection connection;
+
     @Override
-    public void init(){
+    public void init() {
         ServletContext context = getServletContext();
         this.htmls = Htmls.getInstance(context);
         this.connection = MySQLConnections.getConnection(context);
     }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("text/html");
@@ -37,17 +39,18 @@ public class UserLogin extends HttpServlet{
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         //cookie check
         Cookie[] cookies = req.getCookies();
-        if(cookies!=null) {
+        if (cookies != null) {
             for (Cookie c : cookies) {
                 if (c.getName().equals("LOGIN_INFO")) {
                     User user;
                     try {
                         user = new UserDAO(connection).checkCookie(c.getValue());
                     } catch (SQLException e) {
-                        resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        resp.getWriter().write("Internal Server Error");
                         return;
                     }
-                    if(user == null) break;
+                    if (user == null) break;
                     req.getSession(true).setAttribute("user", user);
                     resp.getWriter().write(user.getUsername());
                     return;
@@ -58,27 +61,29 @@ public class UserLogin extends HttpServlet{
         // input parsing
         String username = req.getParameter("username");
         String password = req.getParameter("password");
-        if(username==null || password==null){
-            resp.setStatus(401);
+        if (username == null || password == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("please fill every field");
             return;
         }
         // validity check
-        User user = null;
+        User user;
         try {
-            user = new UserDAO(connection).checkCredentials(username,password);
+            user = new UserDAO(connection).checkCredentials(username, password);
         } catch (SQLException e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("Internal Server Error");
+            return;
         }
-        if(user==null){
-            resp.setStatus(401);
+        if (user == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("wrong credentials");
             return;
         }
         // new auth cookie
-        req.getSession(true).setAttribute("user",user);
-        Cookie cookie = new Cookie("LOGIN_INFO",user.getCookie());
-        cookie.setMaxAge(60*60*24*365);
+        req.getSession(true).setAttribute("user", user);
+        Cookie cookie = new Cookie("LOGIN_INFO", user.getCookie());
+        cookie.setMaxAge(60 * 60 * 24 * 365);
         resp.addCookie(cookie);
         resp.getWriter().write(username);
     }

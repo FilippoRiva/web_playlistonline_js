@@ -15,28 +15,29 @@ public class SongDAO {
 
     private final Connection connection;
     private final String folder;
-    public SongDAO(Connection connection, String folder){
+
+    public SongDAO(Connection connection, String folder) {
         this.folder = folder;
         this.connection = connection;
     }
 
-    public void addSong(String owner, String title, GenreEnum genre, Part song, Album album) throws SQLException{
+    public void addSong(String owner, String title, GenreEnum genre, Part song, Album album) throws SQLException {
         String addSongQuery =
                 "INSERT INTO song (s_title, s_album_ID, s_genre, s_owner) VALUES (?,?,?,?)";
-        try(PreparedStatement addSongStatement = connection.prepareStatement(addSongQuery,Statement.RETURN_GENERATED_KEYS)){
-            addSongStatement.setString(1,title);
-            addSongStatement.setInt(2,album.getId());
+        try (PreparedStatement addSongStatement = connection.prepareStatement(addSongQuery, Statement.RETURN_GENERATED_KEYS)) {
+            addSongStatement.setString(1, title);
+            addSongStatement.setInt(2, album.getId());
             addSongStatement.setString(3, genre.name());
-            addSongStatement.setString(4,owner);
+            addSongStatement.setString(4, owner);
             addSongStatement.executeUpdate();
             ResultSet generatedKey = addSongStatement.getGeneratedKeys();
             generatedKey.next();
             int currentID = generatedKey.getInt(1);
-            String dir = folder+owner+"/"+album.getArtist().getID()+"/"+album.getId()+"/";
+            String dir = folder + owner + "/" + album.getArtist().getID() + "/" + album.getId() + "/";
             String filepath = dir + currentID;
             try {
                 File f = new File(dir);
-                if(!f.exists() && !f.mkdirs()){
+                if (!f.exists() && !f.mkdirs()) {
                     throw new SQLException("unable to create song dirs");
                 }
                 f = new File(filepath);
@@ -55,11 +56,11 @@ public class SongDAO {
                         "JOIN album a on a.a_ID = song.s_album_ID " +
                         "JOIN artist a2 on a2.ar_ID = a.a_artist_ID " +
                         "WHERE s_ID=? and s_owner=? ";
-        try(PreparedStatement getSongByIDStatement = connection.prepareStatement(getSongByIDQuery)){
-            getSongByIDStatement.setInt(1,id);
-            getSongByIDStatement.setString(2,username);
+        try (PreparedStatement getSongByIDStatement = connection.prepareStatement(getSongByIDQuery)) {
+            getSongByIDStatement.setInt(1, id);
+            getSongByIDStatement.setString(2, username);
             ResultSet result = getSongByIDStatement.executeQuery();
-            if(!result.next()) return null;
+            if (!result.next()) return null;
             Song song = new Song();
             song.setId(result.getInt("s_ID"));
             song.setTitle(result.getString("s_title"));
@@ -81,11 +82,11 @@ public class SongDAO {
 
     public boolean isOwner(String username, int id) throws SQLException {
         String checkSongOwnershipQuery = "SELECT COUNT(*) FROM song WHERE s_ID = ? AND s_owner = ?";
-        try(PreparedStatement checkSongOwnershipStatement = connection.prepareStatement(checkSongOwnershipQuery)){
-            checkSongOwnershipStatement.setInt(1,id);
-            checkSongOwnershipStatement.setString(2,username);
+        try (PreparedStatement checkSongOwnershipStatement = connection.prepareStatement(checkSongOwnershipQuery)) {
+            checkSongOwnershipStatement.setInt(1, id);
+            checkSongOwnershipStatement.setString(2, username);
             ResultSet result = checkSongOwnershipStatement.executeQuery();
-            if(!result.next()) return false;
+            if (!result.next()) return false;
             return result.getInt(1) == 1;
         }
     }

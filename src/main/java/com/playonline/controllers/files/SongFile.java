@@ -15,6 +15,7 @@ import java.io.OutputStream;
 public class SongFile extends HttpServlet {
 
     String folder;
+
     @Override
     public void init() {
         this.folder = getServletContext().getInitParameter("filesDirectory");
@@ -24,8 +25,8 @@ public class SongFile extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // auth check
         User user = (User) req.getSession().getAttribute("user");
-        if(user==null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        if (user == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         // input parsing
@@ -35,34 +36,34 @@ public class SongFile extends HttpServlet {
         int songID;
         int artistID;
         int albumID;
-        if(s_ID_str==null || a_ID_str==null || ar_ID_str==null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        if (s_ID_str == null || a_ID_str == null || ar_ID_str == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        try{
+        try {
             songID = Integer.parseInt(s_ID_str);
             artistID = Integer.parseInt(ar_ID_str);
             albumID = Integer.parseInt(a_ID_str);
-        } catch (NumberFormatException e){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         // file check
-        String path = folder+user.getUsername()+"/"+artistID+"/"+albumID+"/"+songID;
+        String path = folder + user.getUsername() + "/" + artistID + "/" + albumID + "/" + songID;
         File f = new File(path);
-        if(!f.exists()){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        if (!f.exists()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
         // response
         resp.setContentType(getServletContext().getMimeType(path));
-        resp.setContentLength((int)f.length());
-        try(FileInputStream input = new FileInputStream(f)){
+        resp.setContentLength((int) f.length());
+        try (FileInputStream input = new FileInputStream(f)) {
             OutputStream output = resp.getOutputStream();
             byte[] buffer = new byte[1024];
             int count;
-            while((count=input.read(buffer))>=0){
-                output.write(buffer,0,count);
+            while ((count = input.read(buffer)) >= 0) {
+                output.write(buffer, 0, count);
             }
         }
     }
