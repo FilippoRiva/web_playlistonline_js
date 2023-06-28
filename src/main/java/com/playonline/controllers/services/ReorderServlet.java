@@ -27,7 +27,7 @@ public class ReorderServlet extends HttpServlet {
     public void init() throws ServletException {
         try {
             this.connection = MySQLConnections.getConnection(getServletContext());
-            connection.setAutoCommit(false);
+            this.connection.setAutoCommit(false);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -65,7 +65,7 @@ public class ReorderServlet extends HttpServlet {
             return;
         }
         List<Integer> actualIds;
-        PlaylistDAO playlistDAO = new PlaylistDAO(connection);
+        PlaylistDAO playlistDAO = new PlaylistDAO(this.connection);
         try {
             actualIds = playlistDAO.getPlaylistIds(id, user.getUsername());
             if (actualIds == null) {
@@ -97,7 +97,7 @@ public class ReorderServlet extends HttpServlet {
             for (int i = 0; i < orderedList.size(); i++) {
                 playlistDAO.updatePosition(id, orderedList.get(i), i);
             }
-            connection.commit();
+            this.connection.commit();
         } catch (SQLException e) {
             try {
                 this.connection.rollback();
