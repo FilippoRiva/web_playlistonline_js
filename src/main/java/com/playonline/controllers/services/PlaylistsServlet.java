@@ -25,6 +25,11 @@ public class PlaylistsServlet extends HttpServlet {
     @Override
     public void init() {
         this.connection = MySQLConnections.getConnection(getServletContext());
+        try{
+            this.connection.setAutoCommit(false);
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
     }
 
     //returns the requested playlist's songs infos
@@ -52,12 +57,13 @@ public class PlaylistsServlet extends HttpServlet {
         // database query
         Playlist playlist;
         try {
-            playlist = new PlaylistDAO(connection).getPlaylist(p_ID, user.getUsername());
+            playlist = new PlaylistDAO(this.connection).getPlaylist(p_ID, user.getUsername());
             if (playlist == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write("Invalid playlist-username couple");
                 return;
             }
+            this.connection.commit(); //seeing other transactions' changes
         } catch (SQLException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().write("Internal Server Error");
@@ -106,7 +112,13 @@ public class PlaylistsServlet extends HttpServlet {
                 } catch (NumberFormatException ignored) { //ignoring non parsable IDs
                 }
             }
+            this.connection.commit();
         } catch (SQLException e) {
+            try {
+                this.connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().write("Internal server error");
         }

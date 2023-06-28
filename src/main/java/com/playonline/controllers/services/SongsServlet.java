@@ -67,8 +67,14 @@ public class SongsServlet extends HttpServlet {
         // page templating
         Song song;
         try {
-            song = new SongDAO(connection, filesDirectory).getSongByID(id, user.getUsername());
+            song = new SongDAO(this.connection, filesDirectory).getSongByID(id, user.getUsername());
+            this.connection.commit(); //seeing other transactions' changes
         } catch (SQLException e) {
+            try {
+                this.connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().write("Internal Server Error");
             return;
